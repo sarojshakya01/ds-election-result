@@ -1,0 +1,113 @@
+
+
+body{
+    /* background-color: red; */
+}
+.actionBtnGroup {
+    display: flex;text-align: center;justify-content: space-between;}
+
+    .actionBtnGroup i{
+
+        padding: 8px 15px;
+        background: #f6f6f6;
+        border: 1px solid #e6e6e6;
+        color: #AF8309;
+        border-radius: 3px;
+        width: 100%;
+       
+    }
+
+    .actionBtnGroup i:hover{
+
+        cursor: pointer;
+
+    }
+
+    .actionBtnGroup i:nth-child(1){
+
+        /* margin-right: 5px; */
+    }
+
+    .actionBtnGroup i:nth-child(2){
+
+        margin-left: 5px;
+    }
+
+
+   input[type=text],select, input[type=checkbox]{
+        
+        font-size: 14px!important;
+        outline: none;
+        box-shadow:none !important;
+        border:1px solid #cfba7f !important;
+        color: black!important;
+    }
+
+    input[type=text],select{
+        height: 25px!important;
+    }
+
+
+
+    .update-nag{
+        display: none!important;
+    }
+
+
+    #wpcontent{
+        margin-left: 140px;
+      }
+
+
+    
+      .submitBtn{
+        background: #AF8309;
+border: none;
+padding: 7px 20px;
+      }
+
+
+      .submitBtn:hover{
+        background: #c7a340!important;
+
+      }
+
+      label{
+        margin-bottom: 3px;
+        font-size: 14px;
+      }
+
+
+      .tableHeading .col-md-3{
+        width: 20%!important;
+      }
+
+
+     #result-form .col-md-3{
+        width: 20%!important;
+      }
+
+
+      #successMessage{
+        display:none;
+        text-align: center;
+/* display: flex; */
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 0 15px 1px rgba(0,0,0,0.1);
+padding: 0;
+
+width: 500px;
+border-radius: 4px;
+position: absolute;
+top: 20%;
+left: 50%;
+transform: translate(-50%,-50%);
+background-color: white;
+      }
+
+      #successMessage p{
+
+            margin: 0;
+
+      }
