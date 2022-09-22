@@ -2,7 +2,14 @@ jQuery(".submitBtnDiv").hide();
 jQuery("#formDiv").hide();
 jQuery("#elected-candidate-section").hide();
 
+const API_BASE_URL = "http://localhost:3334/";
 jQuery(document).ready(function () {
+  fetch(API_BASE_URL + "api/v1/result/all")
+    .then((resp) => resp.json())
+    .then((data) => {
+      result = data;
+    });
+
   let partyOptions = "";
   partyData.data.forEach((party) => {
     partyOptions += "<option value='" + party.code + "' >" + party.name_np + "</option>\n";
@@ -12,7 +19,7 @@ jQuery(document).ready(function () {
   regionData.data.provinces.forEach((province) => (provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`));
   jQuery("#province-dropdown").html(provinceDropDown);
 
-  jQuery(".submitBtn").on("click", function () {
+  jQuery("#candidateSubmitBtn").on("click", function () {
     let typeValue = jQuery("#type-dropdown").val();
     let provinceValue = jQuery("#province-dropdown").val();
     let districtValue = jQuery("#district-dropdown").val();
@@ -25,10 +32,11 @@ jQuery(document).ready(function () {
 
     var postdata = "action=candidateslist&param=savecandidate&dbaction=update&" + jQuery("#candidatesAdd").serialize();
 
-    jQuery.post(electionresultajaxurl, postdata, function (response) {
+    // fetch(API_BASE_URL + "/")
+    jQuery.post(electionresultajaxurl, decodeURI(postdata), function (response) {
       let res = jQuery.parseJSON(response);
 
-      if (res.status == 1) {
+      if (res.status == 200) {
         let regionIndex = result.data[0][typeValue].provinces
           .find((province) => province.id == provinceValue)
           .districts.find((district) => district.id == districtValue)
@@ -44,6 +52,8 @@ jQuery(document).ready(function () {
         result.data[0][typeValue].provinces.find((province) => province.id == provinceValue).districts.find((district) => district.id == districtValue).regions[regionIndex] = regionNewVal;
 
         console.log(result, regionNewVal, "newdata");
+      } else {
+        console.error("Update failed");
       }
     });
   });
@@ -65,7 +75,7 @@ jQuery(document).ready(function () {
               </div>
             </div>
   
-            <div class=" col-md-3 form-group">
+            <div class="col-md-4 form-group">
               <label class="control-label col-sm-2" for="elected-party">Party:</label>
               <div class="col-sm-12">
                 <select class="form-control" required id="elected-party" name="elected-party" >
@@ -73,7 +83,7 @@ jQuery(document).ready(function () {
                 </select>
               </div>
             </div>
-            <div class=" col-md-3 form-group">
+            <div class="col-md-2 form-group">
               <label class="control-label col-sm-2" for="elected-party">Vote:</label>
               <div class="col-sm-12">
                 <input type="text" class="form-control" id="elected-vote" name="elected-vote" placeholder="Enter vote">
@@ -98,20 +108,20 @@ jQuery(document).ready(function () {
               </div>
             </div>
         
-          <div class=" col-md-3 form-group">
+          <div class="col-md-4 form-group">
             <div class="col-sm-10">
-              <select class="form-control" id="elected-vote" name="elected-vote" >
+              <select class="form-control" id="party" name="party[]" >
                 ${partyOptions}
               </select>
             </div>
           </div>
-          <div class=" col-md-3 form-group">
+          <div class="col-md-2 form-group">
             <div class="col-sm-10">
               <input type="text"  class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
             </div>
           </div>
         
-          <div class=" col-md-3 form-group">
+          <div class="col-md-1 form-group">
           <div class="actionBtnGroup col-sm-12">
                          
           <i id ="addFormBtn" class="fas fa-plus "></i>   
@@ -199,7 +209,7 @@ jQuery(document).ready(function () {
     let electedObj = response.elected;
     if (Object.keys(electedObj).length) {
       jQuery("#elected").attr("checked", true);
-      jQuery("#elected").attr("disabled", "disabled");
+      // jQuery("#elected").attr("disabled", "disabled");
       jQuery("#elected-candidate-detail").html(` <div class="row">
             <div class="col-md-3 form-group">
               <label class="control-label col-sm-2" for="elected-name">Name(English):</label>
@@ -213,7 +223,7 @@ jQuery(document).ready(function () {
                 <input type="text" value="${electedObj.name_en}" class="form-control " required id="elected-name-np" name="elected-name-np" placeholder="Enter candidate name in nepali">
               </div>
             </div>
-            <div class=" col-md-3 form-group">
+            <div class="col-md-4 form-group">
               <label class="control-label col-sm-2" for="elected-party">Party:</label>
               <div class="col-sm-12">
                 <select class="form-control" id="elected-party" name="elected-party" value="${electedObj.party}" required>
@@ -221,7 +231,7 @@ jQuery(document).ready(function () {
                 </select>
               </div>
             </div>
-            <div class=" col-md-3 form-group">
+            <div class="col-md-2 form-group">
               <label class="control-label col-sm-2" for="elected-party">Vote:</label>
               <div class="col-sm-12">
                 <input type="text" value="${electedObj.vote}" class="form-control" id="elected-vote" name="elected-vote" placeholder="Enter vote">
@@ -253,20 +263,20 @@ jQuery(document).ready(function () {
                             </div>
                         </div>
                         
-                        <div class=" col-md-3 form-group">
+                        <div class="col-md-4 form-group">
                             <div class="col-sm-10">
                             <select value="${obj.party}" class="form-control" required id="party-${i}" name="party[]">
                               ${partyOptions}
                             </select>
                             </div>
                         </div>
-                        <div class=" col-md-3 form-group">
+                        <div class="col-md-2 form-group">
                             <div class="col-sm-10">
                             <input type="text" value="${obj.vote}" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
                             </div>
                         </div>
                         
-                        <div class=" col-md-3 form-group">
+                        <div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
                             <i id ="addFormBtn" class="fas fa-plus "></i>   
                             </div>
@@ -284,19 +294,19 @@ jQuery(document).ready(function () {
                                 <input type="text" value="${obj.name_np}" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
                             </div>
                             </div>
-                            <div class=" col-md-3 form-group">
+                            <div class="col-md-4 form-group">
                             <div class="col-sm-10">
                               <select value="${obj.party}" class="form-control" required id="party-${i}" name="party[]" >
                                 ${partyOptions}
                               </select>
                             </div>
                             </div>
-                            <div class=" col-md-3 form-group">
+                            <div class="col-md-2 form-group">
                             <div class="col-sm-10">
                                 <input type="text" value="${obj.vote}" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
                             </div>
                             </div>
-                            <div class=" col-md-3 form-group">
+                            <div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
                             <i id="removeFormBtn" class="fas fa-trash "></i>   
                             <i id="editFormBtn" class="fas fa-pencil "></i>   

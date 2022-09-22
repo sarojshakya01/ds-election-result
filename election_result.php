@@ -90,7 +90,7 @@ function candidates_ajax_handler()
         "name_en" => isset($_REQUEST["elected-name"]) ? $_REQUEST["elected-name"] : null,
         "name_np" => isset($_REQUEST["elected-name-np"]) ? $_REQUEST["elected-name-np"] : null,
         "party" => isset($_REQUEST["elected-party"]) ? $_REQUEST["elected-party"] : null,
-        "vote" => isset($_REQUEST["elected-vote"]) ? $_REQUEST["elected-vote"] : null,
+        "vote" => isset($_REQUEST["elected-vote"]) ? intval($_REQUEST["elected-vote"]) : null,
 
     );
 
@@ -110,7 +110,7 @@ function candidates_ajax_handler()
     $district = isset($_REQUEST['district']) ? $_REQUEST['district'] : null;
     $region = (isset($_REQUEST['region']) ? $_REQUEST['region'] : null);
 
-    // print_r(($names_np));
+    
     $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : null;
     $declared = $_REQUEST['elected'] == 'on' ? 1 : 0;
 
@@ -120,12 +120,13 @@ function candidates_ajax_handler()
             "name_en" => $value,
             "name_np" => $names_np[$key],
             "party" => $party[$key],
-            "vote" => $vote[$key]
+            "vote" => intval($vote[$key])
         );
     }
 
-    $region_candidates_encoded = json_encode($region_candidates);
-    $elected_candidate_encoded = json_encode($elected_candidate);
+    $region_candidates_encoded = json_encode($region_candidates, JSON_UNESCAPED_UNICODE);
+    $elected_candidate_encoded = json_encode($elected_candidate, JSON_UNESCAPED_UNICODE);
+
 
     $tableNameToUpdate = tableNameToUpdate($type);
 
@@ -137,16 +138,27 @@ function candidates_ajax_handler()
             WHERE province_id =  $province  AND district_id =  '$district'  AND
             round(region_id, 1) = $region ";
         $response = $wpdb->query($sql_query);
+        
         if ($response)
         {
             echo json_encode(array(
-                "status" => 1,
+                "status" => 200,
                 "message" => "Candidate created successfully",
                 "result" => $region_candidates,
                 "elected_candidate" => $elected_candidate
             ));
+        } else {
+            echo json_encode(array(
+                "status" => 400,
+                "message" => "Candidate can not be updated!")
+            ); 
         }
 
+    } else {
+        echo json_encode(array(
+            "status" => 400,
+            "message" => "Candidate can not be updated!")
+        );
     }
     wp_die();
 }

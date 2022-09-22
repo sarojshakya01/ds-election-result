@@ -1,8 +1,4 @@
 <?php
-echo ('from add');
-print_r($_REQUEST);
-echo ('from add');
-
 // Read the JSON file
 $districts = file_get_contents(ELECTION_RESULT_DIR_PATH . 'distnew.json');
 
@@ -153,7 +149,7 @@ $regions_data = json_decode($regions, true);
                     </div>
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary submitBtn">Submit</button>
+                            <button type="submit" id="candidateSubmitBtn" class="btn btn-primary SubmitBtn">Submit</button>
                         </div>
                     </div>
                 </form>
