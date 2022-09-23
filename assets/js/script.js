@@ -1,8 +1,36 @@
-jQuery(".submitBtnDiv").hide();
 jQuery("#formDiv").hide();
 jQuery("#elected-candidate-section").hide();
 
+var close = document.querySelectorAll(".result .closebtn");
+var i;
+
+// Loop through all close buttons
+for (i = 0; i < close.length; i++) {
+  // When someone clicks on a close button
+  close[i].onclick = function () {
+    // Get the parent of <span class="closebtn"> (<div class="alert">)
+    var div = this.parentElement;
+
+    // Set the opacity of div to 0 (transparent)
+    div.style.opacity = "0";
+
+    // Hide the div after 600ms (the same amount of milliseconds it takes to fade out)
+    setTimeout(function () {
+      div.style.display = "none";
+    }, 600);
+  };
+}
+
 const API_BASE_URL = "http://localhost:3334/";
+
+function notify(type) {
+  let notif = document.querySelector(".result ." + type);
+  notif.style.display = "block";
+  setTimeout(function () {
+    notif.style.display = "none";
+  }, 2000);
+}
+
 jQuery(document).ready(function () {
   fetch(API_BASE_URL + "api/v1/result/all")
     .then((resp) => resp.json())
@@ -24,6 +52,7 @@ jQuery(document).ready(function () {
     let provinceValue = jQuery("#province-dropdown").val();
     let districtValue = jQuery("#district-dropdown").val();
     let regionValue = jQuery("#region-dropdown").val();
+    jQuery("#candidateSubmitBtn").prop("disabled", true);
 
     let resultData = result.data[0][typeValue].provinces
       .find((province) => province.id == provinceValue)
@@ -35,8 +64,10 @@ jQuery(document).ready(function () {
     // fetch(API_BASE_URL + "/")
     jQuery.post(electionresultajaxurl, decodeURI(postdata), function (response) {
       let res = jQuery.parseJSON(response);
+      jQuery("#candidateSubmitBtn").prop("disabled", false);
 
-      if (res.status == 200) {
+      if (res.status === 200) {
+        notify("success");
         let regionIndex = result.data[0][typeValue].provinces
           .find((province) => province.id == provinceValue)
           .districts.find((district) => district.id == districtValue)
@@ -50,9 +81,11 @@ jQuery(document).ready(function () {
         };
 
         result.data[0][typeValue].provinces.find((province) => province.id == provinceValue).districts.find((district) => district.id == districtValue).regions[regionIndex] = regionNewVal;
-
-        console.log(result, regionNewVal, "newdata");
+      } else if (res.status === 100) {
+        notify("info");
+        console.warn("Update failed");
       } else {
+        notify("error");
         console.error("Update failed");
       }
     });
@@ -191,7 +224,7 @@ jQuery(document).ready(function () {
   });
 
   jQuery("#region-dropdown").change(function () {
-    jQuery(".submitBtnDiv").show();
+    jQuery("#candidateSubmitBtn").prop("disabled", false);
     jQuery("#formDiv").show();
     jQuery("#elected-candidate-section").show();
 
@@ -199,7 +232,6 @@ jQuery(document).ready(function () {
     let provinceId = jQuery("#province-dropdown").val();
     let districtId = jQuery("#district-dropdown").val();
     let regionId = jQuery("#region-dropdown").val();
-    var optionSelected = jQuery("option:selected", this);
 
     let response = result.data[0][typeId].provinces
       .find((province) => province.id == provinceId)
@@ -209,7 +241,6 @@ jQuery(document).ready(function () {
     let electedObj = response.elected;
     if (Object.keys(electedObj).length) {
       jQuery("#elected").attr("checked", true);
-      // jQuery("#elected").attr("disabled", "disabled");
       jQuery("#elected-candidate-detail").html(` <div class="row">
             <div class="col-md-3 form-group">
               <label class="control-label col-sm-2" for="elected-name">Name(English):</label>

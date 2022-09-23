@@ -149,15 +149,15 @@ function candidates_ajax_handler()
             ));
         } else {
             echo json_encode(array(
-                "status" => 400,
-                "message" => "Candidate can not be updated!")
+                "status" => 100,
+                "message" => "Data not updated!")
             ); 
         }
 
     } else {
         echo json_encode(array(
             "status" => 400,
-            "message" => "Candidate can not be updated!")
+            "message" => "Bad Request!")
         );
     }
     wp_die();
