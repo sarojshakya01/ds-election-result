@@ -88,7 +88,7 @@ function candidates_ajax_handler() {
 
     $region_candidates = array();
 
-    $declared = $_REQUEST['elected'] == 'on' ? 1 : 0;
+    $declared = 0;
 
     $elected_candidate = (object)array();
     $checked = array("yes", "on",);
@@ -98,6 +98,7 @@ function candidates_ajax_handler() {
     foreach ($names as $key => $value) {
         
         if (in_array($elected[$key], $checked)) {
+            $declared = 1;
             $elected_candidate = array(
                 "name_en" => $value,
                 "name_np" => $names_np[$key],
@@ -142,9 +143,13 @@ function candidates_ajax_handler() {
         try {
             $wpdb->query('START TRANSACTION');
             
-            $sql_query = "INSERT INTO $tableNameToUpdate (province_id, district_id, region_id, result) 
-            VALUES ($province,'$district',$region, '$region_candidates_encoded')
-            ON DUPLICATE KEY UPDATE result = '$region_candidates_encoded';";
+            $sql_query = "INSERT INTO $tableNameToUpdate 
+            (province_id, district_id, region_id, result) 
+            VALUES ($province, '$district', $region, '$region_candidates_encoded')
+            ON DUPLICATE KEY UPDATE
+            result = '$region_candidates_encoded',
+            elected = '$elected_candidate_encoded',
+            declared = $declared;";
             // $sql_query = "UPDATE $tableNameToUpdate SET result = ' $region_candidates_encoded ', 
             // elected = ' $elected_candidate_encoded ' , declared = $declared
             // WHERE province_id =  $province  AND district_id =  '$district'  AND
@@ -169,9 +174,11 @@ function candidates_ajax_handler() {
                     $values .= rtrim($temp_values, ',') . "),\n";
                 }
             }
-            $sql_query = "INSERT INTO ds_election_candidates (rtype, province_id, district_id, region_id, name_np, name_en, party_code, vote, elected, descriptions) 
+            $sql_query = "INSERT INTO ds_election_candidates 
+            (rtype, province_id, district_id, region_id, name_np, name_en, party_code, vote, elected, descriptions) 
             VALUES $values
-            ON DUPLICATE KEY UPDATE name_np = VALUES(name_en),
+            ON DUPLICATE KEY UPDATE
+            name_np = VALUES(name_en),
             name_en = VALUES(name_en),
             vote = VALUES(vote),
             elected = VALUES(elected),
