@@ -1,3 +1,15 @@
+.result-container {
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+  max-width: 90%;
+}
+
+#formDiv {
+  margin-top: 40px;
+}
+
 .form-heading {
   background-color: #ecebea;
   border: none;
@@ -68,12 +80,25 @@ label {
   font-size: 14px;
 }
 
+.tableHeading {
+  background: #e8e8e8;
+  padding: 10px 0;
+  border-radius: 3px;
+  color: #af8309;
+  margin-top: 20px;
+}
+
 .tableHeading .col-md-3 {
   width: 20% !important;
 }
 
 #result-form .col-md-3 {
   width: 20% !important;
+}
+
+.candidate-row {
+  border-bottom: 1px solid #c9c7c7;
+  padding-bottom: 5px;
 }
 
 .submitBtnDiv {

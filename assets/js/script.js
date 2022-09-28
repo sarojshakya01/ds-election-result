@@ -1,27 +1,27 @@
+const API_BASE_URL = "http://localhost:3334/";
+
 jQuery("#formDiv").hide();
 jQuery("#elected-candidate-section").hide();
 
-var close = document.querySelectorAll(".result .closebtn");
-var i;
+function electedChecked(e) {
+  let electedCheckbox = document.querySelectorAll(".elected");
+  for (let i = 0; i < electedCheckbox.length; i++) {
+    electedCheckbox[i].checked = false;
+  }
+  e.checked = true;
+}
 
-// Loop through all close buttons
-for (i = 0; i < close.length; i++) {
-  // When someone clicks on a close button
+let close = document.querySelectorAll(".result .closebtn");
+
+for (let i = 0; i < close.length; i++) {
   close[i].onclick = function () {
-    // Get the parent of <span class="closebtn"> (<div class="alert">)
-    var div = this.parentElement;
-
-    // Set the opacity of div to 0 (transparent)
+    let div = this.parentElement;
     div.style.opacity = "0";
-
-    // Hide the div after 600ms (the same amount of milliseconds it takes to fade out)
     setTimeout(function () {
       div.style.display = "none";
     }, 600);
   };
 }
-
-const API_BASE_URL = "http://localhost:3334/";
 
 function notify(type) {
   let notif = document.querySelector(".result ." + type);
@@ -31,17 +31,50 @@ function notify(type) {
   }, 2000);
 }
 
-jQuery(document).ready(function () {
-  fetch(API_BASE_URL + "api/v1/result/all")
-    .then((resp) => resp.json())
-    .then((data) => {
-      result = data;
-    });
+function populateDistricts(provinceId) {
+  let districtDropDown = `<option value="">Select District</option>`;
 
+  let districts_list = [];
+  if (provinceId) {
+    districts_list = regionData.data.provinces.find(function (province, index) {
+      return province.id == parseInt(provinceId);
+    }).districts;
+  } else {
+    regionData.data.provinces.forEach(function (province, index) {
+      districts_list = districts_list.concat(province.districts);
+    });
+  }
+  districts_list.forEach(function (district) {
+    districtDropDown += `<option value='${district.id}'> ${district.name_np}</option>`;
+  });
+
+  jQuery("#district-dropdown").html(districtDropDown);
+}
+
+function populateRegions(provinceId, districtId) {
+  let typeId = jQuery("#type-dropdown").val();
+  let regionDropDown = `<option value="">Select Region</option>`;
+
+  if (provinceId || districtId) {
+    let regions_list = regionData.data.provinces.find((province) => province.id == provinceId).districts.find((district) => district.id == districtId).regions;
+    regions_list = regions_list.filter((r) => r.rtype === typeId);
+
+    regions_list.forEach(function (region) {
+      regionDropDown += `<option value='${region.id}'> ${region.rtype}-${region.name_np}</option>`;
+    });
+  }
+
+  jQuery("#region-dropdown").html(regionDropDown);
+}
+
+function populateData(result) {
+  populateDistricts();
+  populateRegions();
   let partyOptions = "";
   partyData.data.forEach((party) => {
     partyOptions += "<option value='" + party.code + "' >" + party.name_np + "</option>\n";
   });
+
   let provinceDropDown = `<option value="">Select Province</option>`;
 
   regionData.data.provinces.forEach((province) => (provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`));
@@ -54,14 +87,8 @@ jQuery(document).ready(function () {
     let regionValue = jQuery("#region-dropdown").val();
     jQuery("#candidateSubmitBtn").prop("disabled", true);
 
-    let resultData = result.data[0][typeValue].provinces
-      .find((province) => province.id == provinceValue)
-      .districts.find((district) => district.id == districtValue)
-      .regions.find((region) => region.id == regionValue);
+    let postdata = "action=candidateslist&param=savecandidate&dbaction=update&" + jQuery("#candidatesAdd").serialize();
 
-    var postdata = "action=candidateslist&param=savecandidate&dbaction=update&" + jQuery("#candidatesAdd").serialize();
-
-    // fetch(API_BASE_URL + "/")
     jQuery.post(electionresultajaxurl, decodeURI(postdata), function (response) {
       let res = jQuery.parseJSON(response);
       jQuery("#candidateSubmitBtn").prop("disabled", false);
@@ -91,84 +118,38 @@ jQuery(document).ready(function () {
     });
   });
 
-  jQuery("#elected").click(function () {
-    if (this.checked) {
-      jQuery("#elected-candidate-detail").html(` <div class="row">
-            <div class="col-md-3 form-group">
-              <label class="control-label col-sm-2" for="elected-name">Name(English):</label>
-              <div class="col-sm-12">
-                <input type="text" class="form-control " required id="elected-name" name="elected-name" placeholder="Enter candidate name">
-              </div>
-            </div>
-
-            <div class="col-md-3 form-group">
-              <label class="control-label col-sm-2" for="elected-name-np">Name(Nepali):</label>
-              <div class="col-sm-12">
-                <input type="text" class="form-control " required id="elected-name-np" name="elected-name-np" placeholder="Enter candidate name in nepali">
-              </div>
-            </div>
-  
-            <div class="col-md-4 form-group">
-              <label class="control-label col-sm-2" for="elected-party">Party:</label>
-              <div class="col-sm-12">
-                <select class="form-control" required id="elected-party" name="elected-party" >
-                  ${partyOptions}
-                </select>
-              </div>
-            </div>
-            <div class="col-md-2 form-group">
-              <label class="control-label col-sm-2" for="elected-party">Vote:</label>
-              <div class="col-sm-12">
-                <input type="text" class="form-control" id="elected-vote" name="elected-vote" placeholder="Enter vote">
-              </div>
-            </div>
-        </div>`);
-    } else {
-      jQuery("#elected-candidate-detail").html("");
-    }
-  });
-
-  var formDataDiv = `<div class="row my-3 " id="candirow">
-          <div class="col-md-3 form-group">
-            <div class="col-sm-10">
-              <input type="text"  class="form-control" required id="name" name="name[]" placeholder="Enter candidate name">
-            </div>
-          </div>
-
-          <div class="col-md-3 form-group">
-              <div class="col-sm-10">
-                <input type="text" class="form-control " required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
-              </div>
-            </div>
-        
-          <div class="col-md-4 form-group">
-            <div class="col-sm-10">
-              <select class="form-control" id="party" name="party[]" >
-                ${partyOptions}
-              </select>
-            </div>
-          </div>
-          <div class="col-md-2 form-group">
-            <div class="col-sm-10">
-              <input type="text"  class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
-            </div>
-          </div>
-        
-          <div class="col-md-1 form-group">
-          <div class="actionBtnGroup col-sm-12">
-                         
-          <i id ="addFormBtn" class="fas fa-plus "></i>   
-
-          </div>
-          </div>
-          </div>`;
+  let rowTpl = `<div class="row my-3 candidate-row">
+                  <div class="col-md-2 form-group">
+                      <input type="text"  class="form-control" required id="name" name="name[]" placeholder="Enter candidate name">
+                  </div>
+                  <div class="col-md-2 form-group">
+                      <input type="text" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
+                  </div>
+                  <div class="col-md-3 form-group">
+                      <select class="form-control" id="party" name="party[]" >${partyOptions}</select>
+                  </div>
+                  <div class="col-md-1 form-group">
+                      <input type="text" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
+                  </div>
+                  <div class="col-md-1 form-group">
+                      <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" onClick="electedChecked(this)">
+                  </div>
+                  <div class="col-md-3 form-group">
+                      <textarea type="text" class="form-control" name="descriptions[]" placeholder="Enter short details of candidate" rows="3" cols="33"></textarea>
+                  </div>
+                  <div class="col-md-1 form-group">
+                    <div class="actionBtnGroup col-sm-12">
+                      <i id ="addFormBtn" class="fas fa-plus"></i>   
+                    </div>
+                  </div>
+                </div>`;
 
   jQuery("#candidatesAdd").on("click", "#addFormBtn", function (e) {
     e.preventDefault();
     jQuery(this).attr("class", "fas fa-trash");
     jQuery(this).attr("id", "removeFormBtn");
     jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil "></i>   ');
-    jQuery("#result-form").append(formDataDiv);
+    jQuery("#result-form").append(rowTpl);
   });
 
   jQuery("#candidatesAdd").on("click", "#removeFormBtn", function (e) {
@@ -177,7 +158,7 @@ jQuery(document).ready(function () {
   });
 
   jQuery("#type-dropdown").change(function () {
-    var typeId = jQuery(this).val();
+    let typeId = jQuery(this).val();
     let provinceId = jQuery("#province-dropdown").val();
     let districtId = jQuery("#district-dropdown").val();
     let regionDropDown = `<option value="">Select Region</option>`;
@@ -194,37 +175,31 @@ jQuery(document).ready(function () {
   });
 
   jQuery("#province-dropdown").change(function () {
-    var provinceId = jQuery(this).val();
-    let districtDropDown = `<option value="">Select District</option>`;
-
-    var districts_list = regionData.data.provinces.find(function (province, index) {
-      return province.id == parseInt(provinceId);
-    }).districts;
-
-    districts_list.forEach(function (district) {
-      districtDropDown += `<option value='${district.id}'> ${district.name_np}</option>`;
-    });
-
-    jQuery("#district-dropdown").html(districtDropDown);
+    let provinceId = jQuery(this).val();
+    populateDistricts(provinceId);
   });
 
   jQuery("#district-dropdown").change(function () {
     let districtId = jQuery(this).val();
+
     let provinceId = jQuery("#province-dropdown").val();
-    var typeId = jQuery("#type-dropdown").val();
-    let regionDropDown = `<option value="">Select Region</option>`;
 
-    let regionsData = regionData.data.provinces.find((province) => province.id == provinceId).districts.find((district) => district.id == districtId).regions;
-    regionsData = regionsData.filter((r) => r.rtype === typeId);
+    for (let i = 0; i < regionData.data.provinces.length; i++) {
+      let districts = regionData.data.provinces[i].districts;
+      for (let j = 0; j < districts.length; j++) {
+        if (districts[j].id === districtId) {
+          provinceId = regionData.data.provinces[i].id;
+          break;
+        }
+      }
+    }
 
-    regionsData.forEach(function (region) {
-      regionDropDown += `<option value='${region.id}'> ${region.rtype}-${region.name_np}</option>`;
-    });
-    jQuery("#region-dropdown").html(regionDropDown);
+    jQuery("#province-dropdown").val(provinceId);
+
+    populateRegions(provinceId, districtId);
   });
 
   jQuery("#region-dropdown").change(function () {
-    jQuery("#candidateSubmitBtn").prop("disabled", false);
     jQuery("#formDiv").show();
     jQuery("#elected-candidate-section").show();
 
@@ -232,6 +207,11 @@ jQuery(document).ready(function () {
     let provinceId = jQuery("#province-dropdown").val();
     let districtId = jQuery("#district-dropdown").val();
     let regionId = jQuery("#region-dropdown").val();
+    if (!regionId) {
+      return true;
+    }
+
+    jQuery("#candidateSubmitBtn").prop("disabled", false);
 
     let response = result.data[0][typeId].provinces
       .find((province) => province.id == provinceId)
@@ -239,74 +219,35 @@ jQuery(document).ready(function () {
       .regions.find((region) => region.id == regionId);
 
     let electedObj = response.elected;
-    if (Object.keys(electedObj).length) {
-      jQuery("#elected").attr("checked", true);
-      jQuery("#elected-candidate-detail").html(` <div class="row">
-            <div class="col-md-3 form-group">
-              <label class="control-label col-sm-2" for="elected-name">Name(English):</label>
-              <div class="col-sm-12">
-                <input type="text" value="${electedObj.name_np}" class="form-control" required id="elected-name" name="elected-name" placeholder="Enter candidate name">
-              </div>
-            </div>
-            <div class="col-md-3 form-group">
-            <label class="control-label col-sm-2" for="elected-name">Name(Nepali):</label>
-              <div class="col-sm-12">
-                <input type="text" value="${electedObj.name_en}" class="form-control " required id="elected-name-np" name="elected-name-np" placeholder="Enter candidate name in nepali">
-              </div>
-            </div>
-            <div class="col-md-4 form-group">
-              <label class="control-label col-sm-2" for="elected-party">Party:</label>
-              <div class="col-sm-12">
-                <select class="form-control" id="elected-party" name="elected-party" value="${electedObj.party}" required>
-                  ${partyOptions}
-                </select>
-              </div>
-            </div>
-            <div class="col-md-2 form-group">
-              <label class="control-label col-sm-2" for="elected-party">Vote:</label>
-              <div class="col-sm-12">
-                <input type="text" value="${electedObj.vote}" class="form-control" id="elected-vote" name="elected-vote" placeholder="Enter vote">
-              </div>
-            </div>
-        </div>`);
-    } else {
-      jQuery("#elected").prop("checked", false);
-      jQuery("#elected-candidate-detail").html("");
-      jQuery("#elected").attr("disabled", false);
-    }
 
     if (response.result.length) {
       let formDataDiv = "";
       for (let i = 1; i <= response.result.length; i++) {
         let obj = response.result[i - 1];
-
+        let elected = false;
+        if (Object.keys(electedObj).length && electedObj.name_en === obj.name_en) {
+          elected = true;
+        }
         if (i == response.result.length) {
-          formDataDiv += `<div class="row my-3 " id="candirow">
-                        <div class="col-md-3 form-group">
-                            <div class="col-sm-10">
-                            <input type="text" value="${obj.name_en}" class="form-control" required id="name" name="name[]" placeholder="Enter candidate name">
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 form-group">
-                            <div class="col-sm-10">
-                            <input type="text" value="${obj.name_np}" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4 form-group">
-                            <div class="col-sm-10">
-                            <select value="${obj.party}" class="form-control" required id="party-${i}" name="party[]">
-                              ${partyOptions}
-                            </select>
-                            </div>
+          formDataDiv += `<div class="row my-3 candidate-row">
+                        <div class="col-md-2 form-group">
+                            <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
                         </div>
                         <div class="col-md-2 form-group">
-                            <div class="col-sm-10">
-                            <input type="text" value="${obj.vote}" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
-                            </div>
+                            <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                         </div>
-                        
+                        <div class="col-md-3 form-group">
+                            <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}">${partyOptions}</select>
+                        </div>
+                        <div class="col-md-1 form-group">
+                            <input type="text" value="${obj.vote}" class="form-control" name="vote[]" placeholder="Enter vote">
+                        </div>
+                        <div class="col-md-1 form-group">
+                            <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
+                        </div>
                         <div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
                             <i id ="addFormBtn" class="fas fa-plus "></i>   
@@ -314,38 +255,33 @@ jQuery(document).ready(function () {
                         </div>
                         </div>`;
         } else {
-          formDataDiv += `<div class="row my-3 " id="candirow">
-                            <div class="col-md-3 form-group">
-                            <div class="col-sm-10">
-                                <input type="text" value="${obj.name_en}" class="form-control" required id="name" name="name[]" placeholder="Enter candidate name">
-                            </div>
-                            </div>
-                            <div class="col-md-3 form-group">
-                            <div class="col-sm-10">
-                                <input type="text" value="${obj.name_np}" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
-                            </div>
-                            </div>
-                            <div class="col-md-4 form-group">
-                            <div class="col-sm-10">
-                              <select value="${obj.party}" class="form-control" required id="party-${i}" name="party[]" >
-                                ${partyOptions}
-                              </select>
-                            </div>
+          formDataDiv += `<div class="row my-3 candidate-row">
+                            <div class="col-md-2 form-group">
+                                <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
                             </div>
                             <div class="col-md-2 form-group">
-                            <div class="col-sm-10">
-                                <input type="text" value="${obj.vote}" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
+                                <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                             </div>
+                            <div class="col-md-3 form-group">
+                              <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}">${partyOptions}</select>
                             </div>
                             <div class="col-md-1 form-group">
-                            <div class="actionBtnGroup col-sm-12">
-                            <i id="removeFormBtn" class="fas fa-trash "></i>   
-                            <i id="editFormBtn" class="fas fa-pencil "></i>   
+                                <input type="text" value="${obj.vote}" class="form-control" name="vote[]" placeholder="Enter vote">
                             </div>
+                            <div class="col-md-1 form-group">
+                                <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" ${elected ? "checked" : ""} onClick="electedChecked(this)">
                             </div>
-                            </div>`;
+                            <div class="col-md-3 form-group">
+                                <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
+                            </div>
+                            <div class="col-md-1 form-group">
+                              <div class="actionBtnGroup col-sm-12">
+                                <i id="removeFormBtn" class="fas fa-trash "></i>   
+                                <i id="editFormBtn" class="fas fa-pencil "></i>   
+                              </div>
+                            </div>
+                          </div>`;
         }
-
         jQuery("#result-form").html(formDataDiv);
       }
 
@@ -357,4 +293,17 @@ jQuery(document).ready(function () {
       jQuery("#result-form").html(formDataDiv);
     }
   });
+}
+
+jQuery(document).ready(function () {
+  fetch(API_BASE_URL + "api/v1/result/all")
+    .then((resp) => resp.json())
+    .then((data) => {
+      result = data;
+      populateData(result);
+    })
+    .catch((e) => {
+      console.error(e);
+      populateData(result);
+    });
 });
