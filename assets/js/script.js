@@ -6,9 +6,17 @@ jQuery("#elected-candidate-section").hide();
 function electedChecked(e) {
   let electedCheckbox = document.querySelectorAll(".elected");
   for (let i = 0; i < electedCheckbox.length; i++) {
-    electedCheckbox[i].checked = false;
+    if (e.id !== electedCheckbox[i].id) {
+      electedCheckbox[i].checked = electedCheckbox[i].checked ? false : true;
+    }
   }
-  e.checked = true;
+  if (e.parentElement.querySelector("input[type=hidden]").value === "yes") {
+    e.checked = false;
+    e.parentElement.querySelector("input[type=hidden]").value = "no";
+  } else {
+    e.checked = true;
+    e.parentElement.querySelector("input[type=hidden]").value = "yes";
+  }
 }
 
 let close = document.querySelectorAll(".result .closebtn");
@@ -132,6 +140,7 @@ function populateData(result) {
                       <input type="text" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
                   </div>
                   <div class="col-md-1 form-group">
+                      <input type="hidden" name="elected[]" value="" />
                       <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" onClick="electedChecked(this)">
                   </div>
                   <div class="col-md-3 form-group">
@@ -243,7 +252,8 @@ function populateData(result) {
                             <input type="text" value="${obj.vote}" class="form-control" name="vote[]" placeholder="Enter vote">
                         </div>
                         <div class="col-md-1 form-group">
-                            <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                            <input type="hidden" name="elected[]" value="${elected ? "yes" : ""}" />
+                            <input type="checkbox" autocomplete="off" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
                         </div>
                         <div class="col-md-3 form-group">
                             <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
@@ -269,7 +279,8 @@ function populateData(result) {
                                 <input type="text" value="${obj.vote}" class="form-control" name="vote[]" placeholder="Enter vote">
                             </div>
                             <div class="col-md-1 form-group">
-                                <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                                <input type="hidden" name="elected[]" value="${elected ? "yes" : ""}" />
+                                <input type="checkbox" autocomplete="off" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
                             </div>
                             <div class="col-md-3 form-group">
                                 <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
