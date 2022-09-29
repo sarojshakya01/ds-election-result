@@ -7678,7 +7678,7 @@ var partyData = {
     },
     {
       id: 27,
-      name_p: "प्रजातान्त्रिक पार्टी नेपाल",
+      name_np: "प्रजातान्त्रिक पार्टी नेपाल",
       name_en: "Democratic Party Nepal",
       short_name_np: "",
       short_name_en: "",
