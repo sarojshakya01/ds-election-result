@@ -27,8 +27,8 @@
           <div class="col-sm-12">
             <select name="type" id="type-dropdown" class="form-select" value="federal" required
               aria-label="Default select example">
-              <option value="federal">Federal</option>
-              <option value="provincial">Provincial</option>
+              <option value="federal">प्रतिनिधिसभा</option>
+              <option value="provincial">प्रदेशसभा</option>
             </select>
           </div>
         </div>

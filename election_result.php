@@ -36,23 +36,15 @@ function election_result_include_asset_files() {
 add_action('init', 'election_result_include_asset_files');
 
 function election_result_menu_view_list() {
-    include (ELECTION_RESULT_DIR_PATH . '/templates/candidate-list.php');
+    include (ELECTION_RESULT_DIR_PATH . '/templates/update-data.php');
 }
 
-function election_result_sub_menu_add() {
-    include (ELECTION_RESULT_DIR_PATH . '/templates/candidate-add.php');
-}
 
-function election_result_add_candidate() {
-    include (ELECTION_RESULT_DIR_PATH . '/templates/candidate-edit.php');
-}
 
 function election_result_menu() {
     add_menu_page("electionresultmenu", "Election Result 2079", "manage_options", "electionresult-menu", "election_result_menu_view_list", '', 9);
 
-    add_submenu_page("electionresult-menu", "List Candidate", "List Candidate", "manage_options", "electionresult-menu", "election_result_menu_view_list");
-
-    add_submenu_page("electionresult-menu", "Add Candidate", "Add Candidate", "manage_options", "add-candidate", "election_result_sub_menu_add");
+    add_submenu_page("electionresult-menu", "Update Result", "Update Result", "manage_options", "electionresult-menu", "election_result_menu_view_list");
 
     add_submenu_page("electionresult-menu", "", "", "manage_options", "edit-candidate", "election_result_add_candidate");
 }
