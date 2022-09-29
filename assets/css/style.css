@@ -96,6 +96,10 @@ label {
   width: 20% !important;
 }
 
+.pull-right {
+  float: right;
+}
+
 .candidate-row {
   border-bottom: 1px solid #c9c7c7;
   padding-bottom: 5px;
