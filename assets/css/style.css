@@ -175,3 +175,13 @@ label {
 .result .closebtn:hover {
   color: black;
 }
+
+.col-md-check {
+  flex: 0 0 auto;
+  width: 5.33333333%;
+}
+
+.col-md-vote {
+  flex: 0 0 auto;
+  width: 10.6666666%;
+}

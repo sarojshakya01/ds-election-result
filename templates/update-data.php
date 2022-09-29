@@ -64,8 +64,8 @@
           <div class="col-md-2">Name</div>
           <div class="col-md-2">Name(Nepali)</div>
           <div class="col-md-3">Party</div>
-          <div class="col-md-1">Vote</div>
-          <div class="col-md-1">Elected</div>
+          <div class="col-md-vote">Vote</div>
+          <div class="col-md-check">Elected</div>
           <div class="col-md-3">Description</div>
           <div class="col-md-1">Action</div>
         </div>

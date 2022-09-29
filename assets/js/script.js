@@ -3,11 +3,15 @@ const API_BASE_URL = "http://localhost:3334/";
 jQuery("#formDiv").hide();
 jQuery("#elected-candidate-section").hide();
 
+function updateCheckData(e) {
+  e.parentElement.parentElement.querySelector("input[type=checkbox]").setAttribute("data-name", e.value);
+}
+
 function electedChecked(e) {
   let electedCheckbox = document.querySelectorAll(".elected");
   for (let i = 0; i < electedCheckbox.length; i++) {
-    if (e.id !== electedCheckbox[i].id) {
-      electedCheckbox[i].checked = electedCheckbox[i].checked ? false : true;
+    if (e.getAttribute("data-name") !== electedCheckbox[i].getAttribute("data-name")) {
+      electedCheckbox[i].checked = false;
     }
   }
   if (e.parentElement.querySelector("input[type=hidden]").value === "yes") {
@@ -27,6 +31,8 @@ for (let i = 0; i < close.length; i++) {
     div.style.display = "0";
     setTimeout(function () {
       div.style.display = "none";
+    }, 600);
+    setTimeout(function () {
       div.style.display = "1";
     }, 600);
   };
@@ -135,21 +141,22 @@ function populateData(result) {
                       <input type="text" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
                   </div>
                   <div class="col-md-3 form-group">
-                      <select class="form-control" id="party" name="party[]" >${partyOptions}</select>
+                      <select class="form-control" id="party" name="party[]" onChange="updateCheckData()">${partyOptions}</select>
                   </div>
-                  <div class="col-md-1 form-group">
-                      <input type="text" class="form-control" id="vote" name="vote[]" placeholder="Enter vote">
+                  <div class="col-md-vote form-group">
+                      <input type="number" class="form-control" id="vote" name="vote[]">
                   </div>
-                  <div class="col-md-1 form-group">
+                  <div class="col-md-check form-group">
                       <input type="hidden" name="elected[]" value="" />
-                      <input type="checkbox" autocomplete="off" class="form-control elected" name="elected[]" onClick="electedChecked(this)">
+                      <input type="checkbox" autocomplete="off" data-name="" class="form-control elected" name="elected[]" onClick="electedChecked(this)">
                   </div>
                   <div class="col-md-3 form-group">
                       <textarea type="text" class="form-control" name="descriptions[]" placeholder="Enter short details of candidate" rows="3" cols="33"></textarea>
                   </div>
                   <div class="col-md-1 form-group">
                     <div class="actionBtnGroup col-sm-12">
-                      <i id ="addFormBtn" class="fas fa-plus"></i>   
+                    <i id="removeFormBtn" class="fas fa-trash"></i>
+                      <i id ="addFormBtn" class="fas fa-plus"></i>
                     </div>
                   </div>
                 </div>`;
@@ -158,8 +165,9 @@ function populateData(result) {
     e.preventDefault();
     jQuery(this).attr("class", "fas fa-trash");
     jQuery(this).attr("id", "removeFormBtn");
-    jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil "></i>   ');
+    jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil "></i>');
     jQuery("#result-form").append(rowTpl);
+    jQuery(this).remove();
   });
 
   jQuery("#candidatesAdd").on("click", "#removeFormBtn", function (e) {
@@ -247,20 +255,21 @@ function populateData(result) {
                             <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                         </div>
                         <div class="col-md-3 form-group">
-                            <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}">${partyOptions}</select>
+                            <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
                         </div>
-                        <div class="col-md-1 form-group">
-                            <input type="text" value="${obj.vote}" class="form-control" name="vote[]" placeholder="Enter vote">
+                        <div class="col-md-vote form-group">
+                            <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
                         </div>
-                        <div class="col-md-1 form-group">
+                        <div class="col-md-check form-group">
                             <input type="hidden" name="elected[]" value="${elected ? "yes" : ""}" />
-                            <input type="checkbox" autocomplete="off" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                            <input type="checkbox" autocomplete="off" data-name="${obj.party}" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
                         </div>
                         <div class="col-md-3 form-group">
                             <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
                         </div>
                         <div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
+                            <i id="removeFormBtn" class="fas fa-trash"></i>
                             <i id ="addFormBtn" class="fas fa-plus "></i>   
                             </div>
                         </div>
@@ -274,22 +283,22 @@ function populateData(result) {
                                 <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                             </div>
                             <div class="col-md-3 form-group">
-                              <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}">${partyOptions}</select>
+                              <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
                             </div>
-                            <div class="col-md-1 form-group">
-                                <input type="text" value="${obj.vote}" class="form-control" name="vote[]" placeholder="Enter vote">
+                            <div class="col-md-vote form-group">
+                                <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
                             </div>
-                            <div class="col-md-1 form-group">
+                            <div class="col-md-check form-group">
                                 <input type="hidden" name="elected[]" value="${elected ? "yes" : ""}" />
-                                <input type="checkbox" autocomplete="off" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                                <input type="checkbox" autocomplete="off" data-name="${obj.party}" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
                             </div>
                             <div class="col-md-3 form-group">
                                 <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
                             </div>
                             <div class="col-md-1 form-group">
                               <div class="actionBtnGroup col-sm-12">
-                                <i id="removeFormBtn" class="fas fa-trash "></i>   
-                                <i id="editFormBtn" class="fas fa-pencil "></i>   
+                                <i id="removeFormBtn" class="fas fa-trash"></i>
+                                <i id="editFormBtn" class="fas fa-pencil "></i>
                               </div>
                             </div>
                           </div>`;
