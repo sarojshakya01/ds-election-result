@@ -24,9 +24,10 @@ let close = document.querySelectorAll(".result .closebtn");
 for (let i = 0; i < close.length; i++) {
   close[i].onclick = function () {
     let div = this.parentElement;
-    div.style.opacity = "0";
+    div.style.display = "0";
     setTimeout(function () {
       div.style.display = "none";
+      div.style.display = "1";
     }, 600);
   };
 }
