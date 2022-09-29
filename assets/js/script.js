@@ -142,7 +142,7 @@ function populateData(result) {
                       <input type="text" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
                   </div>
                   <div class="col-md-3 form-group">
-                      <select class="form-control" id="party" name="party[]" onChange="updateCheckData()">${partyOptions}</select>
+                      <select class="form-control" id="party" name="party[]" onChange="updateCheckData(this)">${partyOptions}</select>
                   </div>
                   <div class="col-md-vote form-group">
                       <input type="number" class="form-control" id="vote" name="vote[]">
