@@ -12,6 +12,7 @@ function electedChecked(e) {
   for (let i = 0; i < electedCheckbox.length; i++) {
     if (e.getAttribute("data-name") !== electedCheckbox[i].getAttribute("data-name")) {
       electedCheckbox[i].checked = false;
+      electedCheckbox[i].parentElement.querySelector("input[type=hidden]").value = "no";
     }
   }
   if (e.parentElement.querySelector("input[type=hidden]").value === "yes") {
@@ -155,7 +156,7 @@ function populateData(result) {
                   </div>
                   <div class="col-md-1 form-group">
                     <div class="actionBtnGroup col-sm-12">
-                    <i id="removeFormBtn" class="fas fa-trash"></i>
+                      <i id="removeFormBtn" class="fas fa-trash"></i>
                       <i id ="addFormBtn" class="fas fa-plus"></i>
                     </div>
                   </div>
@@ -165,7 +166,7 @@ function populateData(result) {
     e.preventDefault();
     jQuery(this).attr("class", "fas fa-trash");
     jQuery(this).attr("id", "removeFormBtn");
-    jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil "></i>');
+    jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil"></i>');
     jQuery("#result-form").append(rowTpl);
     jQuery(this).remove();
   });
@@ -173,6 +174,8 @@ function populateData(result) {
   jQuery("#candidatesAdd").on("click", "#removeFormBtn", function (e) {
     e.preventDefault();
     jQuery(this).parent().parent().parent().remove();
+    jQuery("#result-form").children().last().find("#editFormBtn").remove();
+    jQuery("#result-form").children().last().find(".actionBtnGroup").append('<i id ="addFormBtn" class="fas fa-plus"></i>');
   });
 
   jQuery("#type-dropdown").change(function () {
