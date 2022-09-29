@@ -140,7 +140,8 @@ label {
   opacity: 1;
   transition: opacity 0.6s;
   position: fixed;
-  bottom: 15px;
+  top: 50px;
+  right: 10px;
   margin-left: 15px;
   padding: 10px;
   border-radius: 5px;
