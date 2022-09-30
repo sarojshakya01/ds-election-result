@@ -92,8 +92,8 @@ function candidates_ajax_handler() {
         if (in_array($elected[$key], $checked)) {
             $declared = 1;
             $elected_candidate = array(
-                "name_en" => $value,
                 "name_np" => $names_np[$key],
+                "name_en" => $value,
                 "party" => $party[$key],
                 "vote" => intval($vote[$key]),
                 "descriptions" => $descriptions[$key]
@@ -105,8 +105,8 @@ function candidates_ajax_handler() {
             $province,
             $district,
             $region,
-            $value,
             $names_np[$key],
+            $value,
             $party[$key],
             intval($vote[$key]),
             in_array($elected[$key], $checked) ? 'true' : 'false',
@@ -115,8 +115,8 @@ function candidates_ajax_handler() {
         $count = $count + 1;
         
         $region_candidates[$key] = array(
-            "name_en" => $value,
             "name_np" => $names_np[$key],
+            "name_en" => $value,
             "party" => $party[$key],
             "vote" => intval($vote[$key]),
             "elected" => $elected[$key],
@@ -170,7 +170,7 @@ function candidates_ajax_handler() {
             (rtype, province_id, district_id, region_id, name_np, name_en, party_code, vote, elected, descriptions) 
             VALUES $values
             ON DUPLICATE KEY UPDATE
-            name_np = VALUES(name_en),
+            name_np = VALUES(name_np),
             name_en = VALUES(name_en),
             vote = VALUES(vote),
             elected = VALUES(elected),
