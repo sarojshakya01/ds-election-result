@@ -15,43 +15,43 @@ if (!defined("ELECTION_RESULT_PLUGIN_URL")) define("ELECTION_RESULT_PLUGIN_URL",
 function election_result_include_asset_files() {
 
     wp_enqueue_style('bootstrap', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/bootstrap.min.css', '');
-    // wp_enqueue_style('datatable', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/jquery.dataTables.min.css', '');
-    // wp_enqueue_style('notifybar', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/jquery.notifyBar.css', '');
     wp_enqueue_style('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/fontawesome.min.css', '');
     wp_enqueue_style('custom-css', ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css', '');
 
     wp_enqueue_script('jQuery');
     wp_enqueue_script('bootstrapjs', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/bootstrap.bundle.min.js', '', true);
-    // wp_enqueue_script('datatablejs', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/jquery.dataTables.min.js', '', true);
-    // wp_enqueue_script('notifybarjs', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/jquery.notifyBar.js', '', true);
-    // wp_enqueue_script('validatejs', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/jquery.validate.min.js', '', true);
     wp_enqueue_script('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/fontawesome.js', '', true);
-    wp_enqueue_script('custom1js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/data.js', array() , '', true);
+    wp_enqueue_script('custom-data-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/data.js', array() , '', true);
     wp_enqueue_script('custom-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js', array() , '', true);
     wp_localize_script('custom-js', 'electionresultajaxurl', admin_url('admin-ajax.php'));
-    // wp_localize_script('custom-js', 'variables',ELECTION_RESULT_PLUGIN_URL . '/assets/js/data.js');
     
 }
 
 add_action('init', 'election_result_include_asset_files');
 
-function election_result_menu_view_list() {
-    include (ELECTION_RESULT_DIR_PATH . '/templates/update-data.php');
+function election_result_menu_result() {
+    include (ELECTION_RESULT_DIR_PATH . '/templates/directly-elected-result.php');
+}
+
+function election_result_menu_proportional_result() {
+    include (ELECTION_RESULT_DIR_PATH . '/templates/proportional_result.php');
 }
 
 
 
 function election_result_menu() {
-    add_menu_page("electionresultmenu", "Election Result 2079", "manage_options", "electionresult-menu", "election_result_menu_view_list", '', 9);
+    add_menu_page("directly-elected-result", "Election Result 2079", "manage_options", "directly-elected-result", "election_result_menu_result", '', 9);
 
-    add_submenu_page("electionresult-menu", "Update Result", "Update Result", "manage_options", "electionresult-menu", "election_result_menu_view_list");
+    add_submenu_page("directly-elected-result", "Directly Elected Result", "Directly Elected Result", "manage_options", "directly-elected-result", "election_result_menu_result");
 
-    add_submenu_page("electionresult-menu", "", "", "manage_options", "edit-candidate", "election_result_add_candidate");
+    add_submenu_page("directly-elected-result", "Proportional Result", "Proportional Result", "manage_options", "proportional-result", "election_result_menu_proportional_result");
 }
 
 add_action("admin_menu", "election_result_menu");
 
-add_action("wp_ajax_candidateslist", "candidates_ajax_handler");
+add_action("wp_ajax_update_result", "ajax_handler_update_result");
+
+add_action("wp_ajax_update_pr_result", "ajax_handler_update_pr_result");
 
 function tableNameToUpdate($type) {
     if ($type == 'federal'){
@@ -62,7 +62,7 @@ function tableNameToUpdate($type) {
 
 }
 
-function candidates_ajax_handler() {
+function ajax_handler_update_result() {
     global $wpdb;
 
     $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : null;
@@ -130,7 +130,7 @@ function candidates_ajax_handler() {
 
     $tableNameToUpdate = tableNameToUpdate($type);
 
-    if ($_REQUEST['dbaction'] == 'update') {
+    if ($_REQUEST['dbaction'] == 'insert_update') {
 
         try {
             $wpdb->query('START TRANSACTION');
@@ -154,12 +154,12 @@ function candidates_ajax_handler() {
                 $temp_values = "";
                 for ($j = 0; $j < count($candidate_rows[$i]); $j++) {
                     if ($j == 0 || $j == 2 || $j == 4 || $j == 5 || $j == 6 || $j == 9) {
-                        $temp_values .= "'" . $candidate_rows[$i][$j] . "',";   
+                        $temp_values .= "'" . $candidate_rows[$i][$j] . "',";
                     } else {
-                        $temp_values .= $candidate_rows[$i][$j] . ",";   
+                        $temp_values .= $candidate_rows[$i][$j] . ",";
                     }
                 }
-                ;
+                
                 if ($i === count($candidate_rows) - 1) {
                     $values .= rtrim($temp_values, ',') . ")";
                 } else {
@@ -181,7 +181,7 @@ function candidates_ajax_handler() {
             if ($query_result) {
                 echo json_encode(array(
                     "status" => 200,
-                    "message" => "Candidate created successfully",
+                    "message" => "Result data updated successfully",
                     "result" => $region_candidates,
                     "elected_candidate" => $elected_candidate
                 ));
@@ -189,7 +189,7 @@ function candidates_ajax_handler() {
                 $wpdb->query('ROLLBACK');
                 echo json_encode(array(
                     "status" => 100,
-                    "message" => "Data not updatedd!"
+                    "message" => "Result data not updatedd!"
                     )
                 ); 
             }
@@ -200,7 +200,75 @@ function candidates_ajax_handler() {
             $wpdb->query('ROLLBACK');
             echo json_encode(array(
                 "status" => 100,
-                "message" => "Data not updated!")
+                "message" => "Result data not updated!")
+            );
+        }
+    } else {
+        echo json_encode(array(
+            "status" => 400,
+            "message" => "Bad Request!")
+        );
+    }
+    wp_die();
+}
+
+function ajax_handler_update_pr_result() {
+    global $wpdb;
+
+    $party = isset($_REQUEST['party']) ? $_REQUEST['party'] : null;
+    $vote = isset($_REQUEST['vote']) ? $_REQUEST['vote'] : null;
+
+    if ($_REQUEST['dbaction'] == 'update') {
+
+        try {
+            $wpdb->query('START TRANSACTION');
+
+            $values = "";
+            $responseData = [];
+            for ($i = 0; $i < count($party); $i++) {
+                $values .= "('" . $party[$i] . "'," . $vote[$i] . ")";
+                if ($i !== count($party) - 1) {
+                    $values .= ",\n";
+                }
+                array_push($responseData, array("party" => $party[$i], "vote" => $vote[$i]));
+            }
+            $sql_query = "INSERT INTO ds_election_pr_results 
+            (party_code, vote) 
+            VALUES $values
+            ON DUPLICATE KEY UPDATE
+            vote = VALUES(vote)";
+
+            $query_result = $wpdb->query($sql_query);
+            
+            if ($query_result) {
+                $updated_data = $wpdb->get_results("SELECT party_code as party, vote FROM ds_election_pr_results WHERE 1;", OBJECT);
+                
+                $responseData = [];
+                for ($i = 0; $i < count($updated_data); $i++) {
+                    $data =  json_decode($updated_data[$i], true);
+                    array_push($responseData, $updated_data[$i]);
+                }
+                echo json_encode(array(
+                    "status" => 200,
+                    "message" => "Result data updated successfulltt",
+                    "data" => $responseData
+                ));
+            } else {
+                $wpdb->query('ROLLBACK');
+                echo json_encode(array(
+                    "status" => 100,
+                    "message" => "Result data not updated!"
+                    )
+                ); 
+            }
+            
+            $wpdb->query('COMMIT');
+        } catch (Throwable $e) {
+            echo $e;
+            $wpdb->query('ROLLBACK');
+            echo json_encode(array(
+                "status" => 100,
+                "message" => "Result data not updated!")
             );
         }
     } else {

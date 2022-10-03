@@ -4,7 +4,7 @@
 <div class="result-container">
   <div class="row">
     <div class="form-heading">
-      <h4 class="text-center">General Election 2079</h4>
+      <h4 class="text-center">General Election 2079 (Directly Elected Result)</h4>
     </div>
     <div class="result">
       <div class="error" style="display: none">
@@ -20,7 +20,7 @@
         Data Updated Successfully!
       </div>
     </div>
-    <form class="form-horizontal" action="javascript:void(0)" id="candidatesAdd">
+    <form class="form-horizontal" action="javascript:void(0)" id="directly-elected-resultt-form">
       <div class="row">
         <div class=" col-md-3 form-group">
           <label class="control-label col-sm-2" for="type">Type:</label>
@@ -59,8 +59,8 @@
           </div>
         </div>
       </div>
-      <div id="formDiv">
-        <div class="row tableHeading">
+      <div id="candidate-form" style="display: none">
+        <div class="row table-heading">
           <div class="col-md-2">Name</div>
           <div class="col-md-2">Name(Nepali)</div>
           <div class="col-md-3">Party</div>
@@ -72,9 +72,9 @@
         <div class="my-3" id="result-form">
         </div>
       </div>
-      <div class="form-group submitBtnDiv">
+      <div class="form-group submit-btn-container">
         <div class="pull-right">
-          <button type="submit" id="candidateSubmitBtn" class="btn btn-primary submitBtn" disabled>Submit</button>
+          <button type="submit" id="result-submit-btn" class="btn btn-primary submit-btn" disabled>Submit</button>
         </div>
       </div>
     </form>

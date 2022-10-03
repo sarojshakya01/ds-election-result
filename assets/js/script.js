@@ -1,8 +1,5 @@
 const API_BASE_URL = "http://localhost:3334/";
 
-jQuery("#formDiv").hide();
-jQuery("#elected-candidate-section").hide();
-
 function updateCheckData(e) {
   e.parentElement.parentElement.querySelector("input[type=checkbox]").setAttribute("data-name", e.value);
 }
@@ -96,18 +93,18 @@ function populateData(result) {
   regionData.data.provinces.forEach((province) => (provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`));
   jQuery("#province-dropdown").html(provinceDropDown);
 
-  jQuery("#candidateSubmitBtn").on("click", function () {
+  jQuery("#result-submit-btn").on("click", function () {
     let typeValue = jQuery("#type-dropdown").val();
     let provinceValue = jQuery("#province-dropdown").val();
     let districtValue = jQuery("#district-dropdown").val();
     let regionValue = jQuery("#region-dropdown").val();
-    jQuery("#candidateSubmitBtn").prop("disabled", true);
+    jQuery("#result-submit-btn").prop("disabled", true);
 
-    let postdata = "action=candidateslist&param=savecandidate&dbaction=update&" + jQuery("#candidatesAdd").serialize();
+    let postdata = "action=update_result&dbaction=insert_update&" + jQuery("#directly-elected-resultt-form").serialize();
 
     jQuery.post(electionresultajaxurl, decodeURI(postdata), function (response) {
       let res = jQuery.parseJSON(response);
-      jQuery("#candidateSubmitBtn").prop("disabled", false);
+      jQuery("#result-submit-btn").prop("disabled", false);
 
       if (res.status === 200) {
         notify("success");
@@ -162,7 +159,7 @@ function populateData(result) {
                   </div>
                 </div>`;
 
-  jQuery("#candidatesAdd").on("click", "#addFormBtn", function (e) {
+  jQuery("#directly-elected-resultt-form").on("click", "#addFormBtn", function (e) {
     e.preventDefault();
     jQuery(this).attr("class", "fas fa-trash");
     jQuery(this).attr("id", "removeFormBtn");
@@ -171,7 +168,7 @@ function populateData(result) {
     jQuery(this).remove();
   });
 
-  jQuery("#candidatesAdd").on("click", "#removeFormBtn", function (e) {
+  jQuery("#directly-elected-resultt-form").on("click", "#removeFormBtn", function (e) {
     e.preventDefault();
     jQuery(this).parent().parent().parent().remove();
     jQuery("#result-form").children().last().find("#editFormBtn").remove();
@@ -221,8 +218,7 @@ function populateData(result) {
   });
 
   jQuery("#region-dropdown").change(function () {
-    jQuery("#formDiv").show();
-    jQuery("#elected-candidate-section").show();
+    jQuery("#candidate-form").show();
 
     let typeId = jQuery("#type-dropdown").val();
     let provinceId = jQuery("#province-dropdown").val();
@@ -232,7 +228,7 @@ function populateData(result) {
       return true;
     }
 
-    jQuery("#candidateSubmitBtn").prop("disabled", false);
+    jQuery("#result-submit-btn").prop("disabled", false);
 
     let response = result.data[0][typeId].provinces
       .find((province) => province.id == provinceId)
@@ -319,6 +315,73 @@ function populateData(result) {
   });
 }
 
+function bindProportionalPageEvents() {
+  jQuery("#pr-result-submit-btn").on("click", function () {
+    jQuery("#pr-result-submit-btn").prop("disabled", true);
+
+    let postdata = "action=update_pr_result&dbaction=update&" + jQuery("#proportional-result-form").serialize();
+
+    jQuery.post(electionresultajaxurl, decodeURI(postdata), function (response) {
+      let res = jQuery.parseJSON(response);
+      jQuery("#pr-result-submit-btn").prop("disabled", false);
+
+      if (res.status === 200) {
+        notify("success");
+        pr_result.data = res.data;
+        let searchKey = document.getElementById("search-party").value;
+        filterParty(searchKey);
+      } else if (res.status === 100) {
+        notify("info");
+        console.warn("Update failed");
+      } else {
+        notify("error");
+        console.error("Update failed");
+      }
+    });
+  });
+}
+
+function populateProportionalData(data) {
+  let rows = "";
+  if (data.length === 0) {
+    jQuery("#pr-form").html(`<div class="row my-3 party-row">No matching results</div>`);
+  } else {
+    const sortedData = data.sort((p, q) => q.vote - p.vote);
+    jQuery("#pr-form").html("");
+    sortedData.forEach((p, i) => {
+      const partyDetails = partyData.data.find((pd) => pd.code === p.party);
+      rows += `<div class="row my-3 party-row">
+              <div class="col-md-2 form-group">
+                <label>${i + 1}</label>
+              </div>
+              <div class="col-md-6 form-group">
+                <input type="hidden" value="${p.party}" class="form-control" name="party[]">
+                <label>${partyDetails ? partyDetails.name_np : p.party}</label>
+              </div>
+              <div class="col-md-4 form-group">
+                <input type="number" value="${p.vote}" class="form-control" name="vote[]">
+              </div>
+            </div>`;
+    });
+
+    jQuery("#pr-form").html(rows);
+  }
+}
+
+function handleFilterParty(e) {
+  filterParty(e.value);
+}
+
+function filterParty(value) {
+  if (value) {
+    const filteredParties = partyData.data.filter((p) => p.name_en.toLowerCase().includes(value.toLowerCase()));
+    const filteredPR = pr_result.data.filter((pr) => filteredParties.find((fp) => fp.code === pr.party));
+    populateProportionalData(filteredPR);
+  } else {
+    populateProportionalData(pr_result.data);
+  }
+}
+
 jQuery(document).ready(function () {
   fetch(API_BASE_URL + "api/v1/result/all")
     .then((resp) => resp.json())
@@ -329,5 +392,18 @@ jQuery(document).ready(function () {
     .catch((e) => {
       console.error(e);
       populateData(result);
+    });
+
+  fetch(API_BASE_URL + "api/v1/result/proportional")
+    .then((resp) => resp.json())
+    .then((data) => {
+      pr_result = data;
+      populateProportionalData(pr_result.data);
+      bindProportionalPageEvents();
+    })
+    .catch((e) => {
+      console.error(e);
+      populateProportionalData(pr_result.data);
+      bindProportionalPageEvents();
     });
 });

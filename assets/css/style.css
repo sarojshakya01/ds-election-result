@@ -6,7 +6,7 @@
   max-width: 90%;
 }
 
-#formDiv {
+#candidate-form {
   margin-top: 40px;
 }
 
@@ -65,13 +65,13 @@ select {
   margin-left: 140px;
 }
 
-.submitBtn {
+.submit-btn {
   background: #af8309;
   border: none;
   padding: 7px 20px;
 }
 
-.submitBtn:hover {
+.submit-btn:hover {
   background: #c7a340 !important;
 }
 
@@ -80,7 +80,7 @@ label {
   font-size: 14px;
 }
 
-.tableHeading {
+.table-heading {
   background: #e8e8e8;
   padding: 10px 0;
   border-radius: 3px;
@@ -88,7 +88,7 @@ label {
   margin-top: 20px;
 }
 
-.tableHeading .col-md-3 {
+.table-heading .col-md-3 {
   width: 20% !important;
 }
 
@@ -105,7 +105,7 @@ label {
   padding-bottom: 5px;
 }
 
-.submitBtnDiv {
+.submit-btn-container {
   margin-top: 10px;
 }
 
@@ -126,7 +126,7 @@ label {
   --bs-btn-disabled-border-color: rgb(206, 205, 205);
 }
 
-#candidateSubmitBtn:disabled {
+#result-submit-btn:disabled {
   opacity: 0.7;
   pointer-events: auto !important;
   cursor: not-allowed !important;
