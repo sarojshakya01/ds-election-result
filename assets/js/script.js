@@ -24,13 +24,13 @@ function electedChecked(e) {
 let close = document.querySelectorAll(".result .closebtn");
 
 for (let i = 0; i < close.length; i++) {
-  close[i].onclick = function () {
+  close[i].onclick = () => {
     let div = this.parentElement;
     div.style.display = "0";
-    setTimeout(function () {
+    setTimeout(() => {
       div.style.display = "none";
     }, 600);
-    setTimeout(function () {
+    setTimeout(() => {
       div.style.display = "1";
     }, 600);
   };
@@ -39,25 +39,25 @@ for (let i = 0; i < close.length; i++) {
 function notify(type) {
   let notif = document.querySelector(".result ." + type);
   notif.style.display = "block";
-  setTimeout(function () {
+  setTimeout(() => {
     notif.style.display = "none";
   }, 2000);
 }
 
 function populateDistricts(provinceId) {
-  let districtDropDown = `<option value="">Select District</option>`;
+  let districtDropDown = `<option value="">जिल्ला छान्नुहोस्</option>`;
 
-  let districts_list = [];
+  let districts = [];
   if (provinceId) {
-    districts_list = regionData.data.provinces.find(function (province, index) {
+    districts = allRegions.data.provinces.find((province) => {
       return province.id == parseInt(provinceId);
     }).districts;
   } else {
-    regionData.data.provinces.forEach(function (province, index) {
-      districts_list = districts_list.concat(province.districts);
+    allRegions.data.provinces.forEach((province) => {
+      districts = districts.concat(province.districts);
     });
   }
-  districts_list.forEach(function (district) {
+  districts.forEach((district) => {
     districtDropDown += `<option value='${district.id}'> ${district.name_np}</option>`;
   });
 
@@ -66,14 +66,16 @@ function populateDistricts(provinceId) {
 
 function populateRegions(provinceId, districtId) {
   let typeId = jQuery("#type-dropdown").val();
-  let regionDropDown = `<option value="">Select Region</option>`;
 
-  if (provinceId || districtId) {
-    let regions_list = regionData.data.provinces.find((province) => province.id == provinceId).districts.find((district) => district.id == districtId).regions;
-    regions_list = regions_list.filter((r) => r.rtype === typeId);
+  let regionDropDown = `<option value="">क्षेत्र छान्नुहोस्</option>`;
 
-    regions_list.forEach(function (region) {
-      regionDropDown += `<option value='${region.id}'> ${region.rtype}-${region.name_np}</option>`;
+  if (provinceId && districtId) {
+    const district = allRegions.data.provinces.find((province) => province.id == provinceId).districts.find((district) => district.id == districtId);
+    let regions = district.regions;
+    regions = regions.filter((r) => r.rtype === typeId);
+
+    regions.forEach(function (region) {
+      regionDropDown += `<option value='${region.id}'> ${district.name_np}-${region.name_np}</option>`;
     });
   }
 
@@ -84,13 +86,15 @@ function populateData(result) {
   populateDistricts();
   populateRegions();
   let partyOptions = "";
-  partyData.data.forEach((party) => {
-    partyOptions += "<option value='" + party.code + "' >" + party.name_np + "</option>\n";
-  });
+  parties.data
+    .sort((a, b) => (a.name_en > b.name_en ? -1 : 1))
+    .forEach((party) => {
+      partyOptions += "<option value='" + party.code + "' >" + party.name_np + "</option>\n";
+    });
 
-  let provinceDropDown = `<option value="">Select Province</option>`;
+  let provinceDropDown = `<option value="">प्रदेश छान्नुहोस्</option>`;
 
-  regionData.data.provinces.forEach((province) => (provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`));
+  allRegions.data.provinces.forEach((province) => (provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`));
   jQuery("#province-dropdown").html(provinceDropDown);
 
   jQuery("#result-submit-btn").on("click", function () {
@@ -108,19 +112,10 @@ function populateData(result) {
 
       if (res.status === 200) {
         notify("success");
-        let regionIndex = result.data[0][typeValue].provinces
-          .find((province) => province.id == provinceValue)
-          .districts.find((district) => district.id == districtValue)
-          .regions.findIndex((region) => region.id == regionValue);
 
-        let regionNewVal = {
-          id: parseFloat(regionValue),
-          declared: Object.keys(res.elected_candidate).length ? true : false,
-          result: res.result,
-          elected: res.elected_candidate,
-        };
+        let newData = candidates.data.filter((c) => c.rtype === typeValue && c.province_id === provinceValue && c.district_id === districtValue && c.region_id === regionValue);
 
-        result.data[0][typeValue].provinces.find((province) => province.id == provinceValue).districts.find((district) => district.id == districtValue).regions[regionIndex] = regionNewVal;
+        newData = [...newData, ...res.data];
       } else if (res.status === 100) {
         notify("info");
         console.warn("Update failed");
@@ -179,14 +174,15 @@ function populateData(result) {
     let typeId = jQuery(this).val();
     let provinceId = jQuery("#province-dropdown").val();
     let districtId = jQuery("#district-dropdown").val();
-    let regionDropDown = `<option value="">Select Region</option>`;
+    let regionDropDown = `<option value="">क्षेत्र छान्नुहोस्</option>`;
 
     if (provinceId && districtId) {
-      let regionsData = regionData.data.provinces.find((province) => province.id == provinceId).districts.find((district) => district.id == districtId).regions;
-      regionsData = regionsData.filter((r) => r.rtype === typeId);
+      const district = allRegions.data.provinces.find((province) => province.id == provinceId).districts.find((district) => district.id == districtId);
+      let regions = district.regions;
+      regions = regions.filter((r) => r.rtype === typeId);
 
-      regionsData.forEach(function (region) {
-        regionDropDown += `<option value='${region.id}'> ${region.rtype}-${region.name_np}</option>`;
+      regions.forEach(function (region) {
+        regionDropDown += `<option value='${region.id}'> ${district.name_np}-${region.name_np}</option>`;
       });
       jQuery("#region-dropdown").html(regionDropDown);
     }
@@ -202,11 +198,11 @@ function populateData(result) {
 
     let provinceId = jQuery("#province-dropdown").val();
 
-    for (let i = 0; i < regionData.data.provinces.length; i++) {
-      let districts = regionData.data.provinces[i].districts;
+    for (let i = 0; i < allRegions.data.provinces.length; i++) {
+      let districts = allRegions.data.provinces[i].districts;
       for (let j = 0; j < districts.length; j++) {
         if (districts[j].id === districtId) {
-          provinceId = regionData.data.provinces[i].id;
+          provinceId = allRegions.data.provinces[i].id;
           break;
         }
       }
@@ -230,22 +226,14 @@ function populateData(result) {
 
     jQuery("#result-submit-btn").prop("disabled", false);
 
-    let response = result.data[0][typeId].provinces
-      .find((province) => province.id == provinceId)
-      .districts.find((district) => district.id == districtId)
-      .regions.find((region) => region.id == regionId);
+    let regions = candidates.data.filter((c) => c.rtype === typeId && c.province_id == provinceId && c.district_id == districtId && c.region_id == regionId);
 
-    let electedObj = response.elected;
-
-    if (response.result.length) {
+    if (regions.length) {
       let formDataDiv = "";
-      for (let i = 1; i <= response.result.length; i++) {
-        let obj = response.result[i - 1];
-        let elected = false;
-        if (Object.keys(electedObj).length && electedObj.name_en === obj.name_en) {
-          elected = true;
-        }
-        if (i == response.result.length) {
+      for (let i = 1; i <= regions.length; i++) {
+        let obj = regions[i - 1];
+
+        if (i == regions.length) {
           formDataDiv += `<div class="row my-3 candidate-row">
                         <div class="col-md-2 form-group">
                             <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
@@ -254,14 +242,14 @@ function populateData(result) {
                             <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                         </div>
                         <div class="col-md-3 form-group">
-                            <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                            <select value="${obj.party_code}" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
                         </div>
                         <div class="col-md-vote form-group">
                             <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
                         </div>
                         <div class="col-md-check form-group">
-                            <input type="hidden" name="elected[]" value="${elected ? "yes" : ""}" />
-                            <input type="checkbox" autocomplete="off" data-name="${obj.party}" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                            <input type="hidden" name="elected[]" value="${obj.elected ? "yes" : ""}" />
+                            <input type="checkbox" autocomplete="off" data-name="${obj.party_code}" class="form-control elected" ${obj.elected ? "checked" : ""} onClick="electedChecked(this)">
                         </div>
                         <div class="col-md-3 form-group">
                             <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
@@ -282,14 +270,14 @@ function populateData(result) {
                                 <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                             </div>
                             <div class="col-md-3 form-group">
-                              <select value="${obj.party}" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                              <select value="${obj.party_code}" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
                             </div>
                             <div class="col-md-vote form-group">
                                 <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
                             </div>
                             <div class="col-md-check form-group">
-                                <input type="hidden" name="elected[]" value="${elected ? "yes" : ""}" />
-                                <input type="checkbox" autocomplete="off" data-name="${obj.party}" class="form-control elected" ${elected ? "checked" : ""} onClick="electedChecked(this)">
+                                <input type="hidden" name="elected[]" value="${obj.elected ? "yes" : ""}" />
+                                <input type="checkbox" autocomplete="off" data-name="${obj.party_code}" class="form-control elected" ${obj.elected ? "checked" : ""} onClick="electedChecked(this)">
                             </div>
                             <div class="col-md-3 form-group">
                                 <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
@@ -305,12 +293,12 @@ function populateData(result) {
         jQuery("#result-form").html(formDataDiv);
       }
 
-      for (let i = 1; i <= response.result.length; i++) {
-        let obj = response.result[i - 1];
-        jQuery("#party-" + i).val(obj.party);
+      for (let i = 1; i <= regions.length; i++) {
+        let obj = regions[i - 1];
+        jQuery("#party-" + i).val(obj.party_code);
       }
     } else {
-      jQuery("#result-form").html(formDataDiv);
+      jQuery("#result-form").html(rowTpl);
     }
   });
 }
@@ -349,7 +337,7 @@ function populateProportionalData(data) {
     const sortedData = data.sort((p, q) => q.vote - p.vote);
     jQuery("#pr-form").html("");
     sortedData.forEach((p, i) => {
-      const partyDetails = partyData.data.find((pd) => pd.code === p.party);
+      const partyDetails = parties.data.find((pd) => pd.code === p.party);
       rows += `<div class="row my-3 party-row">
               <div class="col-md-2 form-group">
                 <label>${i + 1}</label>
@@ -374,7 +362,7 @@ function handleFilterParty(e) {
 
 function filterParty(value) {
   if (value) {
-    const filteredParties = partyData.data.filter((p) => p.name_en.toLowerCase().includes(value.toLowerCase()));
+    const filteredParties = parties.data.filter((p) => p.name_en.toLowerCase().includes(value.toLowerCase()));
     const filteredPR = pr_result.data.filter((pr) => filteredParties.find((fp) => fp.code === pr.party));
     populateProportionalData(filteredPR);
   } else {
@@ -383,11 +371,20 @@ function filterParty(value) {
 }
 
 jQuery(document).ready(function () {
-  fetch(API_BASE_URL + "api/v1/result/all")
+  fetch(API_BASE_URL + "api/v1/party/all")
     .then((resp) => resp.json())
     .then((data) => {
-      result = data;
-      populateData(result);
+      parties = data;
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+
+  fetch(API_BASE_URL + "api/v1/candidate/all")
+    .then((resp) => resp.json())
+    .then((data) => {
+      candidates = data;
+      populateData(candidates.data);
     })
     .catch((e) => {
       console.error(e);

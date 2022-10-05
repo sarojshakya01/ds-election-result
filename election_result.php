@@ -119,8 +119,8 @@ function ajax_handler_update_result() {
             "name_en" => $value,
             "party" => $party[$key],
             "vote" => intval($vote[$key]),
-            "elected" => $elected[$key],
-            "descriptions" => $descriptions[$key]
+            // "elected" => $elected[$key],
+            // "descriptions" => $descriptions[$key]
         );
     }
 
@@ -131,7 +131,6 @@ function ajax_handler_update_result() {
     $tableNameToUpdate = tableNameToUpdate($type);
 
     if ($_REQUEST['dbaction'] == 'insert_update') {
-
         try {
             $wpdb->query('START TRANSACTION');
             
@@ -178,29 +177,34 @@ function ajax_handler_update_result() {
 
             $query_result2 = $wpdb->query($sql_query);
             
-            if ($query_result) {
+            if ($query_result2) {
+                $updated_data = $wpdb->get_results("SELECT * FROM ds_election_candidates WHERE province_id =  $province  AND district_id =  '$district'  AND
+                round(region_id, 1) = $region ;", OBJECT);
+                $responseData = [];
+                for ($i = 0; $i < count($updated_data); $i++) {
+                    array_push($responseData, $updated_data[$i]);
+                }
                 echo json_encode(array(
                     "status" => 200,
                     "message" => "Result data updated successfully",
-                    "result" => $region_candidates,
-                    "elected_candidate" => $elected_candidate
+                    "data" => $responseData
                 ));
             } else {
                 $wpdb->query('ROLLBACK');
                 echo json_encode(array(
                     "status" => 100,
-                    "message" => "Result data not updatedd!"
+                    "message" => "Result data not updated!",
+                    "query" => $query_result2
                     )
                 ); 
             }
             
             $wpdb->query('COMMIT');
         } catch (Throwable $e) {
-            echo $e;
             $wpdb->query('ROLLBACK');
             echo json_encode(array(
                 "status" => 100,
-                "message" => "Result data not updated!")
+                "message" => "Result data not updated!"),
             );
         }
     } else {
@@ -245,12 +249,11 @@ function ajax_handler_update_pr_result() {
                 
                 $responseData = [];
                 for ($i = 0; $i < count($updated_data); $i++) {
-                    $data =  json_decode($updated_data[$i], true);
                     array_push($responseData, $updated_data[$i]);
                 }
                 echo json_encode(array(
                     "status" => 200,
-                    "message" => "Result data updated successfulltt",
+                    "message" => "Result data updated successfully",
                     "data" => $responseData
                 ));
             } else {
@@ -264,11 +267,11 @@ function ajax_handler_update_pr_result() {
             
             $wpdb->query('COMMIT');
         } catch (Throwable $e) {
-            echo $e;
             $wpdb->query('ROLLBACK');
             echo json_encode(array(
                 "status" => 100,
-                "message" => "Result data not updated!")
+                "message" => "Result data not updated!"),
+                // "verbose" => $e
             );
         }
     } else {
