@@ -344,7 +344,7 @@ function populateProportionalData(data) {
               </div>
               <div class="col-md-6 form-group">
                 <input type="hidden" value="${p.party}" class="form-control" name="party[]">
-                <label>${partyDetails ? partyDetails.name_np : p.party}</label>
+                <label class="table-label">${partyDetails ? partyDetails.name_np : p.party}</label>
               </div>
               <div class="col-md-4 form-group">
                 <input type="number" value="${p.vote}" class="form-control" name="vote[]">
@@ -362,7 +362,7 @@ function handleFilterParty(e) {
 
 function filterParty(value) {
   if (value) {
-    const filteredParties = parties.data.filter((p) => p.name_en.toLowerCase().includes(value.toLowerCase()));
+    const filteredParties = parties.data.filter((p) => p.name_en.toLowerCase().includes(value.toLowerCase()) || p.name_np.includes(value));
     const filteredPR = pr_result.data.filter((pr) => filteredParties.find((fp) => fp.code === pr.party));
     populateProportionalData(filteredPR);
   } else {

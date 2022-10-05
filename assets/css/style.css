@@ -185,3 +185,12 @@ label {
   flex: 0 0 auto;
   width: 10.6666666%;
 }
+
+.table-label {
+  cursor: auto;
+}
+
+.party-row {
+  border-bottom: 1px solid #bcbaba;
+  padding-bottom: 10px;
+}
