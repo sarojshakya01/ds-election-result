@@ -1784,36 +1784,7 @@ var parties = {
 };
 
 var pr_result = {
-  data: [
-    {
-      party: "O",
-      vote: 43432,
-    },
-    {
-      party: "NC",
-      vote: 3243432,
-    },
-    {
-      party: "CPNUML",
-      vote: 2243432,
-    },
-    {
-      party: "CPNMC",
-      vote: 1243432,
-    },
-    {
-      party: "CPNUS",
-      vote: 43433,
-    },
-    {
-      party: "BSS",
-      vote: 12432,
-    },
-    {
-      party: "TMDP",
-      vote: 43422,
-    },
-  ],
+  data: [],
   message: "Data Read Successfully",
   status: "OK",
 };

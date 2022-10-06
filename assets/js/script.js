@@ -85,7 +85,7 @@ function populateRegions(provinceId, districtId) {
 function populateData(result) {
   populateDistricts();
   populateRegions();
-  let partyOptions = "";
+  let partyOptions = "<option value=''>पार्टी छान्नुहोस्</option>";
   parties.data
     .sort((a, b) => (a.name_en > b.name_en ? -1 : 1))
     .forEach((party) => {
@@ -94,7 +94,9 @@ function populateData(result) {
 
   let provinceDropDown = `<option value="">प्रदेश छान्नुहोस्</option>`;
 
-  allRegions.data.provinces.forEach((province) => (provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`));
+  allRegions.data.provinces.forEach((province) => {
+    provinceDropDown += `<option value="${province.id}">${province.name_np}</option>`;
+  });
   jQuery("#province-dropdown").html(provinceDropDown);
 
   jQuery("#result-submit-btn").on("click", function () {
@@ -388,7 +390,7 @@ jQuery(document).ready(function () {
     })
     .catch((e) => {
       console.error(e);
-      populateData(result);
+      populateData(candidates.data);
     });
 
   fetch(API_BASE_URL + "api/v1/result/proportional")
