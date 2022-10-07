@@ -194,3 +194,9 @@ label {
   border-bottom: 1px solid #bcbaba;
   padding-bottom: 10px;
 }
+
+
+.candidate-row span{
+  font-size: .8rem;
+color: red;
+}

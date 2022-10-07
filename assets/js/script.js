@@ -82,6 +82,97 @@ function populateRegions(provinceId, districtId) {
   jQuery("#region-dropdown").html(regionDropDown);
 }
 
+
+function clearErrors(){
+
+  let nameInput = document.getElementsByName('name[]');
+  for (i=0; i<nameInput.length; i++){
+
+    jQuery('.name_message')[i].innerHTML= ''
+    jQuery('.name_np_message')[i].innerHTML= ''
+    jQuery('.party_message')[i].innerHTML= ''
+    jQuery('.vote_message')[i].innerHTML= ''
+
+  }
+
+}
+
+
+function validateParties(){
+  let partiesList = [];
+  let isuniqueParty = true
+  let partyInput = document.getElementsByName('party[]');
+  let partyCount = 1;
+ 
+  for (i=0; i<partyInput.length; i++){
+
+    if(partiesList.includes(partyInput[i].value))
+    {
+      partyCount = partyCount+1;
+      if (partyCount>1)
+      {
+        jQuery('.party_message')[i].innerHTML= "Two candidates can't have same party."
+        isuniqueParty = false;
+        return false;
+      }
+    }
+    else
+    {
+      partiesList.push(partyInput[i].value)
+    }
+  }
+  
+  console.log(partiesList,partyCount)
+
+  return isuniqueParty
+}
+
+function validate(){
+
+  clearErrors();
+  if(validateParties()){
+
+  var isValid = true;
+  let nameInput = document.getElementsByName('name[]');
+  let name_npInput = document.getElementsByName('name_np[]');
+  let partyInput = document.getElementsByName('party[]');
+  let votesInput = document.getElementsByName('vote[]');
+
+  for (i=0; i<nameInput.length; i++)
+    {
+ 
+     if (nameInput[i].value == "" || nameInput[i].value == null )
+      {
+        jQuery('.name_message')[i].innerHTML= 'Please fill name!!!'
+        isValid = false;
+        return false;
+      }
+      if (name_npInput[i].value == "" || name_npInput[i].value == null )
+      {
+        jQuery('.name_np_message')[i].innerHTML= 'Please fill name in nepali!!!'
+        isValid = false;
+        return false;
+      }
+      if (partyInput[i].value == "" || partyInput[i].value == null )
+      {
+        jQuery('.party_message')[i].innerHTML= 'Please fill party!!!'
+        isValid = false;
+        return false;
+      }
+      if (votesInput[i].value == "" || votesInput[i].value == null )
+      {
+        jQuery('.vote_message')[i].innerHTML= 'Please fill votes!!!'
+        isValid = false;
+        return false;
+      }
+    }
+
+
+    return isValid;
+
+  }
+}
+
 function populateData(result) {
   populateDistricts();
   populateRegions();
@@ -100,6 +191,12 @@ function populateData(result) {
   jQuery("#province-dropdown").html(provinceDropDown);
 
   jQuery("#result-submit-btn").on("click", function () {
+
+
+   
+
+if(validate()){
+
     let typeValue = jQuery("#type-dropdown").val();
     let provinceValue = jQuery("#province-dropdown").val();
     let districtValue = jQuery("#district-dropdown").val();
@@ -126,20 +223,27 @@ function populateData(result) {
         console.error("Update failed");
       }
     });
+
+  }
+
   });
 
   let rowTpl = `<div class="row my-3 candidate-row">
                   <div class="col-md-2 form-group">
-                      <input type="text"  class="form-control" required id="name" name="name[]" placeholder="Enter candidate name">
+                  <input type="text"  class="form-control"  id="name" name="name[]" placeholder="Enter candidate name">
+                  <span class="name_message"></span>
                   </div>
                   <div class="col-md-2 form-group">
-                      <input type="text" class="form-control" required id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
+                  <input type="text" class="form-control"  id="name-np" name="name_np[]" placeholder="Enter candidate name in nepali">
+                  <span class="name_np_message"></span>
                   </div>
                   <div class="col-md-3 form-group">
-                      <select class="form-control" id="party" name="party[]" onChange="updateCheckData(this)">${partyOptions}</select>
+                  <select class="form-control" id="party" name="party[]" onChange="updateCheckData(this)">${partyOptions}</select>
+                  <span class="party_message"></span>
                   </div>
                   <div class="col-md-vote form-group">
-                      <input type="number" class="form-control" id="vote" name="vote[]">
+                  <input type="number" class="form-control" id="vote" name="vote[]">
+                  <span class="vote_message"></span>
                   </div>
                   <div class="col-md-check form-group">
                       <input type="hidden" name="elected[]" value="" />
@@ -158,11 +262,17 @@ function populateData(result) {
 
   jQuery("#directly-elected-resultt-form").on("click", "#addFormBtn", function (e) {
     e.preventDefault();
-    jQuery(this).attr("class", "fas fa-trash");
-    jQuery(this).attr("id", "removeFormBtn");
-    jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil"></i>');
-    jQuery("#result-form").append(rowTpl);
-    jQuery(this).remove();
+    console.log('yo chalnu parcha surumai')
+    validate();
+    if (validate()){
+
+      console.log('yo chalnu hudaina')
+      jQuery(this).attr("class", "fas fa-trash");
+      jQuery(this).attr("id", "removeFormBtn");
+      jQuery(this).parent().append('<i id ="editFormBtn" class="fas fa-pencil"></i>');
+      jQuery("#result-form").append(rowTpl);
+      jQuery(this).remove();
+    }
   });
 
   jQuery("#directly-elected-resultt-form").on("click", "#removeFormBtn", function (e) {
