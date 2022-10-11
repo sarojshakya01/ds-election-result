@@ -30,6 +30,7 @@
               <option value="federal">प्रतिनिधिसभा</option>
               <option value="provincial">प्रदेशसभा</option>
             </select>
+            
           </div>
         </div>
 
@@ -39,6 +40,7 @@
             <select name="province" id="province-dropdown" class="form-select" required
               aria-label="Default select example">
             </select>
+           
           </div>
         </div>
 
@@ -48,6 +50,7 @@
             <select name="district" id="district-dropdown" required class="form-select"
               aria-label="Default select example">
             </select>
+            <span class="district_error_message"></span>
           </div>
         </div>
 

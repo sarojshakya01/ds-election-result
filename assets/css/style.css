@@ -196,7 +196,7 @@ label {
 }
 
 
-.candidate-row span{
+.candidate-row span,.district_error_message {
   font-size: .8rem;
-color: red;
+  color: red;
 }
