@@ -12,17 +12,22 @@ if (!defined("ELECTION_RESULT_DIR_PATH")) define("ELECTION_RESULT_DIR_PATH", plu
 
 if (!defined("ELECTION_RESULT_PLUGIN_URL")) define("ELECTION_RESULT_PLUGIN_URL", plugins_url() . "/ds-election-result");
 
+$css_timestamp = filemtime(ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css' );
+define( 'CSS_VERSION', $css_timestamp );
+$js_timestamp = filemtime(ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js' );
+define( 'JS_VERSION', $js_timestamp );
+
 function election_result_include_asset_files() {
 
-    wp_enqueue_style('bootstrap', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/bootstrap.min.css', '');
-    wp_enqueue_style('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/fontawesome.min.css', '');
-    wp_enqueue_style('custom-css', ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css', '');
+    wp_enqueue_style('bootstrap', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/bootstrap.min.css', array(), '');
+    wp_enqueue_style('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/fontawesome.min.css', array(), '');
+    wp_enqueue_style('custom-css', ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css', array(), CSS_VERSION);
 
     wp_enqueue_script('jQuery');
     wp_enqueue_script('bootstrapjs', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/bootstrap.bundle.min.js', '', true);
     wp_enqueue_script('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/fontawesome.js', '', true);
     wp_enqueue_script('custom-data-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/data.js', array() , '', true);
-    wp_enqueue_script('custom-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js', array() , '', true);
+    wp_enqueue_script('custom-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js', array() , JS_VERSION, true);
     wp_localize_script('custom-js', 'electionresultajaxurl', admin_url('admin-ajax.php'));
     
 }
@@ -53,15 +58,6 @@ add_action("wp_ajax_update_result", "ajax_handler_update_result");
 
 add_action("wp_ajax_update_pr_result", "ajax_handler_update_pr_result");
 
-function tableNameToUpdate($type) {
-    if ($type == 'federal'){
-        return 'ds_election_fresults';
-    } else {
-        return 'ds_election_presults';
-    }
-
-}
-
 function ajax_handler_update_result() {
     global $wpdb;
 
@@ -76,9 +72,6 @@ function ajax_handler_update_result() {
     $vote = isset($_REQUEST['vote']) ? $_REQUEST['vote'] : null;
     $elected = isset($_REQUEST['elected']) ? $_REQUEST['elected'] : null;
     $descriptions = isset($_REQUEST['descriptions']) ? $_REQUEST['descriptions'] : null;
-
-
-    $region_candidates = array();
 
     $declared = 0;
 
@@ -113,39 +106,11 @@ function ajax_handler_update_result() {
             $descriptions[$key] ? $descriptions[$key] : ""
         );
         $count = $count + 1;
-        
-        $region_candidates[$key] = array(
-            "name_np" => $names_np[$key],
-            "name_en" => $value,
-            "party" => $party[$key],
-            "vote" => intval($vote[$key]),
-            // "elected" => $elected[$key],
-            // "descriptions" => $descriptions[$key]
-        );
     }
-
-    $region_candidates_encoded = json_encode($region_candidates, JSON_UNESCAPED_UNICODE);
-    $elected_candidate_encoded = json_encode($elected_candidate, JSON_UNESCAPED_UNICODE);
-
-
-    $tableNameToUpdate = tableNameToUpdate($type);
 
     if ($_REQUEST['dbaction'] == 'insert_update') {
         try {
             $wpdb->query('START TRANSACTION');
-            
-            $sql_query = "INSERT INTO $tableNameToUpdate 
-            (province_id, district_id, region_id, result) 
-            VALUES ($province, '$district', $region, '$region_candidates_encoded')
-            ON DUPLICATE KEY UPDATE
-            result = '$region_candidates_encoded',
-            elected = '$elected_candidate_encoded',
-            declared = $declared;";
-            // $sql_query = "UPDATE $tableNameToUpdate SET result = ' $region_candidates_encoded ', 
-            // elected = ' $elected_candidate_encoded ' , declared = $declared
-            // WHERE province_id =  $province  AND district_id =  '$district'  AND
-            // round(region_id, 1) = $region ";
-            $query_result = $wpdb->query($sql_query);
 
             $values = "";
             for ($i = 0; $i < count($candidate_rows); $i++) {
@@ -175,9 +140,9 @@ function ajax_handler_update_result() {
             elected = VALUES(elected),
             descriptions = VALUES(descriptions);";
 
-            $query_result2 = $wpdb->query($sql_query);
+            $query_result = $wpdb->query($sql_query);
             
-            if ($query_result2) {
+            if ($query_result) {
                 $updated_data = $wpdb->get_results("SELECT * FROM ds_election_candidates WHERE province_id =  $province  AND district_id =  '$district'  AND
                 round(region_id, 1) = $region ;", OBJECT);
                 $responseData = [];
@@ -194,7 +159,6 @@ function ajax_handler_update_result() {
                 echo json_encode(array(
                     "status" => 100,
                     "message" => "Result data not updated!",
-                    "query" => $query_result2
                     )
                 ); 
             }

@@ -4,6 +4,23 @@ function updateCheckData(e) {
   e.parentElement.parentElement
     .querySelector("input[type=checkbox]")
     .setAttribute("data-name", e.value);
+
+  if (e.value === "I") {
+    let inndepentCount = 0;
+    for(let i = 0; i < jQuery(".party").length; i++) {
+      let p = jQuery(".party")[i];
+      if (p.value.match(/I+\d/)){
+        inndepentCount++;
+      }
+    }
+    const iId = "I" + (inndepentCount + 1);
+    e.options.forEach(opt => {
+      if (opt.value === "I") {
+        opt.value = iId;
+      }
+    });
+    e.value = iId;
+  }
 }
 
 function electedChecked(e) {
@@ -92,10 +109,10 @@ function populateRegions(provinceId, districtId) {
 function clearErrors() {
   let nameInput = document.getElementsByName("name[]");
   for (i = 0; i < nameInput.length; i++) {
-    jQuery(".name_message")[i].innerHTML = "";
-    jQuery(".name_np_message")[i].innerHTML = "";
-    jQuery(".party_message")[i].innerHTML = "";
-    jQuery(".vote_message")[i].innerHTML = "";
+    if (jQuery(".name_message")[i]) jQuery(".name_message")[i].innerHTML = "";
+    if (jQuery(".name_np_message")[i]) jQuery(".name_np_message")[i].innerHTML = "";
+    if (jQuery(".party_message")[i]) jQuery(".party_message")[i].innerHTML = "";
+    if (jQuery(".vote_message")[i]) jQuery(".vote_message")[i].innerHTML = "";
   }
 }
 
@@ -142,7 +159,7 @@ function validate() {
         return false;
       }
       if (partyInput[i].value == "" || partyInput[i].value == null) {
-        jQuery(".party_message")[i].innerHTML = "This field is required";
+        if(jQuery(".party_message")[i].innerHTML) jQuery(".party_message")[i].innerHTML = "This field is required";
         isValid = false;
         return false;
       }
@@ -222,7 +239,7 @@ function populateData(result) {
                     <span class="name_np_message"></span>
                   </div>
                   <div class="col-md-3 form-group">
-                    <select class="form-control" id="party" name="party[]" onChange="updateCheckData(this)">${partyOptions}</select>
+                    <select class="form-control" class="form-control party" name="party[]" onChange="updateCheckData(this)">${partyOptions}</select>
                     <span class="party_message"></span>
                   </div>
                   <div class="col-md-vote form-group">
@@ -266,7 +283,27 @@ function populateData(result) {
     "#removeFormBtn",
     function (e) {
       e.preventDefault();
+      let party = jQuery(this).parent().parent().parent().find("select")[0]
       jQuery(this).parent().parent().parent().remove();
+      if (party.value.match(/I+\d/)) {
+        let inndepentCount = 0;
+        for(let i = 0; i < jQuery(".party").length; i++) {
+          let p = jQuery(".party")[i];
+          
+          if (p.value.match(/I+\d/)){
+            inndepentCount++;
+            p.options.forEach(opt => {
+              if (opt.value.match(/I+\d/)) {
+                opt.value = "I" + inndepentCount;
+              }
+            });
+
+            p.value = "I" + inndepentCount;
+            p.setAttribute("value", p.value);
+          }
+        }
+      }
+
       jQuery("#result-form").children().last().find("#editFormBtn").remove();
       jQuery("#result-form")
         .children()
@@ -350,39 +387,23 @@ function populateData(result) {
         if (i == regions.length) {
           formDataDiv += `<div class="row my-3 candidate-row">
                         <div class="col-md-2 form-group">
-                            <input type="text" value="${
-                              obj.name_en
-                            }" class="form-control" required name="name[]" placeholder="Enter candidate name">
+                            <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
                         </div>
                         <div class="col-md-2 form-group">
-                            <input type="text" value="${
-                              obj.name_np
-                            }" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
+                            <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                         </div>
                         <div class="col-md-3 form-group">
-                            <select value="${
-                              obj.party_code
-                            }" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                            <select value="${obj.party_code}" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
                         </div>
                         <div class="col-md-vote form-group">
-                            <input type="number" value="${
-                              obj.vote
-                            }" class="form-control" name="vote[]">
+                            <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
                         </div>
                         <div class="col-md-check form-group">
-                            <input type="hidden" name="elected[]" value="${
-                              obj.elected ? "yes" : ""
-                            }" />
-                            <input type="checkbox" autocomplete="off" data-name="${
-                              obj.party_code
-                            }" class="form-control elected" ${
-            obj.elected ? "checked" : ""
-          } onClick="electedChecked(this)">
+                            <input type="hidden" name="elected[]" value="${obj.elected ? "yes" : ""}" />
+                            <input type="checkbox" autocomplete="off" data-name="${obj.party_code}" class="form-control elected" ${obj.elected ? "checked" : ""} onClick="electedChecked(this)">
                         </div>
                         <div class="col-md-3 form-group">
-                            <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${
-                              obj.descriptions ? obj.descriptions : ""
-                            }</textarea>
+                            <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
                         </div>
                         <div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
@@ -394,39 +415,23 @@ function populateData(result) {
         } else {
           formDataDiv += `<div class="row my-3 candidate-row">
                             <div class="col-md-2 form-group">
-                                <input type="text" value="${
-                                  obj.name_en
-                                }" class="form-control" required name="name[]" placeholder="Enter candidate name">
+                                <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
                             </div>
                             <div class="col-md-2 form-group">
-                                <input type="text" value="${
-                                  obj.name_np
-                                }" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
+                                <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                             </div>
                             <div class="col-md-3 form-group">
-                              <select value="${
-                                obj.party_code
-                              }" class="form-control" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                              <select value="${obj.party_code}" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
                             </div>
                             <div class="col-md-vote form-group">
-                                <input type="number" value="${
-                                  obj.vote
-                                }" class="form-control" name="vote[]">
+                                <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
                             </div>
                             <div class="col-md-check form-group">
-                                <input type="hidden" name="elected[]" value="${
-                                  obj.elected ? "yes" : ""
-                                }" />
-                                <input type="checkbox" autocomplete="off" data-name="${
-                                  obj.party_code
-                                }" class="form-control elected" ${
-            obj.elected ? "checked" : ""
-          } onClick="electedChecked(this)">
+                                <input type="hidden" name="elected[]" value="${obj.elected ? "yes" : ""}" />
+                                <input type="checkbox" autocomplete="off" data-name="${obj.party_code}" class="form-control elected" ${obj.elected ? "checked" : ""} onClick="electedChecked(this)">
                             </div>
                             <div class="col-md-3 form-group">
-                                <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${
-                                  obj.descriptions ? obj.descriptions : ""
-                                }</textarea>
+                                <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
                             </div>
                             <div class="col-md-1 form-group">
                               <div class="actionBtnGroup col-sm-12">
@@ -439,8 +444,18 @@ function populateData(result) {
         jQuery("#result-form").html(formDataDiv);
       }
 
+      let inndepentCount = 0;
       for (let i = 1; i <= regions.length; i++) {
         let obj = regions[i - 1];
+        if (obj.party_code.match(/I+\d/)) {
+          inndepentCount++;
+          jQuery("#party-" + i)[0].options.forEach(opt => {
+            if (opt.value === "I") {
+              opt.value = "I" + inndepentCount;
+            }
+          });
+          obj.party_code = "I" + inndepentCount;
+        }
         jQuery("#party-" + i).val(obj.party_code);
       }
     } else {
