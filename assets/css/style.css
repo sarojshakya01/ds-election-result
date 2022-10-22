@@ -1,9 +1,6 @@
 .result-container {
   margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0;
-  max-width: 90%;
+  max-width: 95%;
 }
 
 #candidate-form {
@@ -42,27 +39,24 @@
   margin-left: 5px;
 }
 
-input[type="text"],
-select,
-input[type="checkbox"] {
-  font-size: 14px !important;
+#proportional-result-form input[type="text"],
+#proportional-result-form select,
+#proportional-result-form input[type="checkbox"],
+#directly-elected-resultt-form input[type="text"],
+#directly-elected-resultt-form select,
+#directly-elected-resultt-form input[type="checkbox"] {
+  font-size: 14px;
   outline: none;
-  box-shadow: none !important;
-  border: 1px solid #cfba7f !important;
-  color: black !important;
+  box-shadow: none;
+  border: 1px solid #cfba7f;
+  color: black;
 }
 
-input[type="text"],
-select {
-  height: 25px !important;
-}
-
-.update-nag {
-  display: none !important;
-}
-
-#wpcontent {
-  margin-left: 140px;
+#proportional-result-form input[type="text"],
+#proportional-result-form select,
+#directly-elected-resultt-form input[type="text"],
+#directly-elected-resultt-form select {
+  height: 25px;
 }
 
 .submit-btn {
@@ -75,7 +69,8 @@ select {
   background: #c7a340 !important;
 }
 
-label {
+#proportional-result-form label,
+#directly-elected-resultt-form label {
   margin-bottom: 3px;
   font-size: 14px;
 }
@@ -195,8 +190,8 @@ label {
   padding-bottom: 10px;
 }
 
-
-.candidate-row span,.district_error_message {
-  font-size: .8rem;
+.candidate-row span,
+.district_error_message {
+  font-size: 0.8rem;
   color: red;
 }
