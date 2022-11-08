@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3334/";
+const API_BASE_URL = "https://electionapi.deshsanchar.com/";
 
 function updateCheckData(e) {
   e.parentElement.parentElement

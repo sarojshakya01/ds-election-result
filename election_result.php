@@ -12,22 +12,24 @@ if (!defined("ELECTION_RESULT_DIR_PATH")) define("ELECTION_RESULT_DIR_PATH", plu
 
 if (!defined("ELECTION_RESULT_PLUGIN_URL")) define("ELECTION_RESULT_PLUGIN_URL", plugins_url() . "/ds-election-result");
 
-$css_timestamp = filemtime(ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css' );
-define( 'CSS_VERSION', $css_timestamp );
-$js_timestamp = filemtime(ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js' );
-define( 'JS_VERSION', $js_timestamp );
+// $css_timestamp = filemtime(ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css' );
+// define( 'CSS_VERSION', $css_timestamp );
+// $js_timestamp = filemtime(ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js' );
+// define( 'JS_VERSION', $js_timestamp );
 
 function election_result_include_asset_files() {
 
     wp_enqueue_style('bootstrap', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/bootstrap.min.css', array(), '');
     wp_enqueue_style('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/css/lib/fontawesome.min.css', array(), '');
-    wp_enqueue_style('custom-css', ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css', array(), CSS_VERSION);
+    // wp_enqueue_style('custom-css', ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css', array(), CSS_VERSION);
+    wp_enqueue_style('custom-css', ELECTION_RESULT_PLUGIN_URL . '/assets/css/style.css', array(), "");
 
     wp_enqueue_script('jQuery');
     wp_enqueue_script('bootstrapjs', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/bootstrap.bundle.min.js', '', true);
     wp_enqueue_script('fontawesome', ELECTION_RESULT_PLUGIN_URL . '/assets/js/lib/fontawesome.js', '', true);
     wp_enqueue_script('custom-data-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/data.js', array() , '', true);
-    wp_enqueue_script('custom-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js', array() , JS_VERSION, true);
+    // wp_enqueue_script('custom-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js', array() , JS_VERSION, true);
+    wp_enqueue_script('custom-js', ELECTION_RESULT_PLUGIN_URL . '/assets/js/script.js', array() , "", true);
     wp_localize_script('custom-js', 'electionresultajaxurl', admin_url('admin-ajax.php'));
     
 }
@@ -130,6 +132,10 @@ function ajax_handler_update_result() {
                     $values .= rtrim($temp_values, ',') . "),\n";
                 }
             }
+            $sql_query_delete = "DELETE FROM ds_election_candidates where rtype = '$type' and province_id = $province and district_id = '$district' and region_id = $region";
+
+            $query_result = $wpdb->query($sql_query_delete);
+
             $sql_query = "INSERT INTO ds_election_candidates 
             (rtype, province_id, district_id, region_id, name_np, name_en, party_code, vote, elected, descriptions) 
             VALUES $values
