@@ -7,14 +7,14 @@ function updateCheckData(e) {
 
   if (e.value === "I") {
     let inndepentCount = 0;
-    for(let i = 0; i < jQuery(".party").length; i++) {
+    for (let i = 0; i < jQuery(".party").length; i++) {
       let p = jQuery(".party")[i];
-      if (p.value.match(/I+\d/)){
+      if (p.value.match(/I+\d/)) {
         inndepentCount++;
       }
     }
     const iId = "I" + (inndepentCount + 1);
-    e.options.forEach(opt => {
+    e.options.forEach((opt) => {
       if (opt.value === "I") {
         opt.value = iId;
       }
@@ -23,7 +23,20 @@ function updateCheckData(e) {
   }
 }
 
+function checkHighestVotes(e) {
+  let candidateVotes = document.getElementsByName("vote[]");
+  let vote = e.parentElement.previousElementSibling.firstElementChild.value;
+  for (let i = 0; i < candidateVotes.length; i++) {
+    if (jQuery(".vote_message")[i]) jQuery(".vote_message")[i].innerHTML = "";
+    if (vote < parseInt(candidateVotes[i].value)) {
+      e.parentElement.querySelector(".vote_message").innerHTML =
+        "Another candidate has greater value of vote.";
+    }
+  }
+}
+
 function electedChecked(e) {
+  checkHighestVotes(e);
   let electedCheckbox = document.querySelectorAll(".elected");
   for (let i = 0; i < electedCheckbox.length; i++) {
     if (
@@ -110,7 +123,8 @@ function clearErrors() {
   let nameInput = document.getElementsByName("name[]");
   for (i = 0; i < nameInput.length; i++) {
     if (jQuery(".name_message")[i]) jQuery(".name_message")[i].innerHTML = "";
-    if (jQuery(".name_np_message")[i]) jQuery(".name_np_message")[i].innerHTML = "";
+    if (jQuery(".name_np_message")[i])
+      jQuery(".name_np_message")[i].innerHTML = "";
     if (jQuery(".party_message")[i]) jQuery(".party_message")[i].innerHTML = "";
     if (jQuery(".vote_message")[i]) jQuery(".vote_message")[i].innerHTML = "";
   }
@@ -146,7 +160,6 @@ function validate() {
     let nameInput = document.getElementsByName("name[]");
     let nameNPInput = document.getElementsByName("name_np[]");
     let partyInput = document.getElementsByName("party[]");
-
     for (i = 0; i < nameInput.length; i++) {
       if (nameInput[i].value == "" || nameInput[i].value == null) {
         jQuery(".name_message")[i].innerHTML = "This field is required";
@@ -159,12 +172,12 @@ function validate() {
         return false;
       }
       if (partyInput[i].value == "" || partyInput[i].value == null) {
-        if(jQuery(".party_message")[i].innerHTML) jQuery(".party_message")[i].innerHTML = "This field is required";
+        if (jQuery(".party_message")[i].innerHTML)
+          jQuery(".party_message")[i].innerHTML = "This field is required";
         isValid = false;
         return false;
       }
     }
-
     return isValid;
   }
 }
@@ -249,6 +262,7 @@ function populateData(result) {
                   <div class="col-md-check form-group">
                     <input type="hidden" name="elected[]" value="" />
                     <input type="checkbox" autocomplete="off" data-name="" class="form-control elected" name="elected[]" onClick="electedChecked(this)">
+                    <span class="vote_message"></span>
                   </div>
                   <div class="col-md-3 form-group">
                     <textarea type="text" class="form-control" name="descriptions[]" placeholder="e.g. राम थापा एक नेपाली राजनीतिज्ञ र युवा नेता हुन्, जो नेपाली कांग्रेसका वर्तमान महासचिव छन्।" rows="3" cols="33"></textarea>
@@ -283,33 +297,43 @@ function populateData(result) {
     "#removeFormBtn",
     function (e) {
       e.preventDefault();
-      let party = jQuery(this).parent().parent().parent().find("select")[0]
-      jQuery(this).parent().parent().parent().remove();
-      if (party.value.match(/I+\d/)) {
-        let inndepentCount = 0;
-        for(let i = 0; i < jQuery(".party").length; i++) {
-          let p = jQuery(".party")[i];
-          
-          if (p.value.match(/I+\d/)){
-            inndepentCount++;
-            p.options.forEach(opt => {
-              if (opt.value.match(/I+\d/)) {
-                opt.value = "I" + inndepentCount;
-              }
-            });
+      if (confirm("Are you sure?")) {
+        let party = jQuery(this).parent().parent().parent().find("select")[0];
+        if (party.value.match(/I+\d/)) {
+          let inndepentCount = 0;
+          for (let i = 0; i < jQuery(".party").length; i++) {
+            let p = jQuery(".party")[i];
+            if (p.value.match(/I+\d/)) {
+              inndepentCount++;
+              p.options.forEach((opt) => {
+                if (opt.value.match(/I+\d/)) {
+                  opt.value = "I" + inndepentCount;
+                }
+              });
 
-            p.value = "I" + inndepentCount;
-            p.setAttribute("value", p.value);
+              p.value = "I" + inndepentCount;
+              p.setAttribute("value", p.value);
+            }
           }
         }
-      }
 
-      jQuery("#result-form").children().last().find("#editFormBtn").remove();
-      jQuery("#result-form")
-        .children()
-        .last()
-        .find(".actionBtnGroup")
-        .append('<i id ="addFormBtn" class="fas fa-plus"></i>');
+        if (jQuery(this).parent().parent().parent().next(".candidate-row").length) {
+          jQuery(this).parent().parent().parent().remove();
+        } else {
+          jQuery(this).parent().parent().parent().remove();
+          jQuery("#result-form")
+            .children()
+            .last()
+            .find("#editFormBtn")
+            .remove();
+          jQuery("#result-form")
+            .children()
+            .last()
+            .find(".actionBtnGroup")
+            .append('<i id ="addFormBtn" class="fas fa-plus"></i>');
+        }
+      }
+      return false;
     }
   );
 
@@ -387,23 +411,43 @@ function populateData(result) {
         if (i == regions.length) {
           formDataDiv += `<div class="row my-3 candidate-row">
                         <div class="col-md-2 form-group">
-                            <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
+                            <input type="text" value="${
+                              obj.name_en
+                            }" class="form-control" required name="name[]" placeholder="Enter candidate name">
+                            <span class="name_message"></span>
                         </div>
                         <div class="col-md-2 form-group">
-                            <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
+                            <input type="text" value="${
+                              obj.name_np
+                            }" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
+                            <span class="name_np_message"></span>
                         </div>
                         <div class="col-md-3 form-group">
-                            <select value="${obj.party_code}" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                            <select value="${
+                              obj.party_code
+                            }" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                            <span class="party_message"></span>
                         </div>
                         <div class="col-md-vote form-group">
-                            <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
+                            <input type="number" value="${
+                              obj.vote
+                            }" class="form-control" name="vote[]">
                         </div>
                         <div class="col-md-check form-group">
-                            <input type="hidden" name="elected[]" value="${obj.elected ? "yes" : ""}" />
-                            <input type="checkbox" autocomplete="off" data-name="${obj.party_code}" class="form-control elected" ${obj.elected ? "checked" : ""} onClick="electedChecked(this)">
+                            <input type="hidden" name="elected[]" value="${
+                              obj.elected ? "yes" : ""
+                            }" />
+                            <input type="checkbox" autocomplete="off" data-name="${
+                              obj.party_code
+                            }" class="form-control elected" ${
+            obj.elected ? "checked" : ""
+          } onClick="electedChecked(this)">
+                            <span class="vote_message"></span>
                         </div>
                         <div class="col-md-3 form-group">
-                            <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
+                            <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${
+                              obj.descriptions ? obj.descriptions : ""
+                            }</textarea>
                         </div>
                         <div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
@@ -415,23 +459,43 @@ function populateData(result) {
         } else {
           formDataDiv += `<div class="row my-3 candidate-row">
                             <div class="col-md-2 form-group">
-                                <input type="text" value="${obj.name_en}" class="form-control" required name="name[]" placeholder="Enter candidate name">
+                                <input type="text" value="${
+                                  obj.name_en
+                                }" class="form-control" required name="name[]" placeholder="Enter candidate name">
+                                <span class="name_message"></span>
                             </div>
                             <div class="col-md-2 form-group">
-                                <input type="text" value="${obj.name_np}" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
+                                <input type="text" value="${
+                                  obj.name_np
+                                }" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
+                                <span class="name_np_message"></span>
                             </div>
                             <div class="col-md-3 form-group">
-                              <select value="${obj.party_code}" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                              <select value="${
+                                obj.party_code
+                              }" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
+                              <span class="party_message"></span>
                             </div>
                             <div class="col-md-vote form-group">
-                                <input type="number" value="${obj.vote}" class="form-control" name="vote[]">
+                                <input type="number" value="${
+                                  obj.vote
+                                }" class="form-control" name="vote[]">
                             </div>
                             <div class="col-md-check form-group">
-                                <input type="hidden" name="elected[]" value="${obj.elected ? "yes" : ""}" />
-                                <input type="checkbox" autocomplete="off" data-name="${obj.party_code}" class="form-control elected" ${obj.elected ? "checked" : ""} onClick="electedChecked(this)">
+                                <input type="hidden" name="elected[]" value="${
+                                  obj.elected ? "yes" : ""
+                                }" />
+                                <input type="checkbox" autocomplete="off" data-name="${
+                                  obj.party_code
+                                }" class="form-control elected" ${
+            obj.elected ? "checked" : ""
+          } onClick="electedChecked(this)">
+                                <span class="vote_message"></span>
                             </div>
                             <div class="col-md-3 form-group">
-                                <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${obj.descriptions ? obj.descriptions : ""}</textarea>
+                                <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${
+                                  obj.descriptions ? obj.descriptions : ""
+                                }</textarea>
                             </div>
                             <div class="col-md-1 form-group">
                               <div class="actionBtnGroup col-sm-12">
@@ -449,7 +513,7 @@ function populateData(result) {
         let obj = regions[i - 1];
         if (obj.party_code.match(/I+\d/)) {
           inndepentCount++;
-          jQuery("#party-" + i)[0].options.forEach(opt => {
+          jQuery("#party-" + i)[0].options.forEach((opt) => {
             if (opt.value === "I") {
               opt.value = "I" + inndepentCount;
             }
