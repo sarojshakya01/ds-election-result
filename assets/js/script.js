@@ -1,4 +1,5 @@
 const API_BASE_URL = "https://electionapi.deshsanchar.com/";
+// const API_BASE_URL = "http://localhost:3334/";
 
 function updateCheckData(e) {
   e.parentElement.parentElement
@@ -251,7 +252,7 @@ function populateData(result) {
                     <input type="text" class="form-control"  id="name-np" name="name_np[]" placeholder="e.g. राम थापा">
                     <span class="name_np_message"></span>
                   </div>
-                  <div class="col-md-3 form-group">
+                  <div class="col-md-party form-group">
                     <select class="form-control" class="form-control party" name="party[]" onChange="updateCheckData(this)">${partyOptions}</select>
                     <span class="party_message"></span>
                   </div>
@@ -264,14 +265,14 @@ function populateData(result) {
                     <input type="checkbox" autocomplete="off" data-name="" class="form-control elected" name="elected[]" onClick="electedChecked(this)">
                     <span class="vote_message"></span>
                   </div>
-                  <div class="col-md-3 form-group">
+                  <div class="col-md-description form-group">
                     <textarea type="text" class="form-control" name="descriptions[]" placeholder="e.g. राम थापा एक नेपाली राजनीतिज्ञ र युवा नेता हुन्, जो नेपाली कांग्रेसका वर्तमान महासचिव छन्।" rows="3" cols="33"></textarea>
                   </div>
-                  <div class="col-md-1 form-group">
+                  <!--<div class="col-md-1 form-group">
                     <div class="actionBtnGroup col-sm-12">
                       <i id="removeFormBtn" class="fas fa-trash"></i>
                       <i id ="addFormBtn" class="fas fa-plus"></i>
-                    </div>
+                    </div>-->
                   </div>
                 </div>`;
 
@@ -326,11 +327,11 @@ function populateData(result) {
             .last()
             .find("#editFormBtn")
             .remove();
-          jQuery("#result-form")
-            .children()
-            .last()
-            .find(".actionBtnGroup")
-            .append('<i id ="addFormBtn" class="fas fa-plus"></i>');
+          // jQuery("#result-form")
+          //   .children()
+          //   .last()
+          //   .find(".actionBtnGroup")
+          //   .append('<i id ="addFormBtn" class="fas fa-plus"></i>');
         }
       }
       return false;
@@ -422,7 +423,7 @@ function populateData(result) {
                             }" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                             <span class="name_np_message"></span>
                         </div>
-                        <div class="col-md-3 form-group">
+                        <div class="col-md-party form-group">
                             <select value="${
                               obj.party_code
                             }" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
@@ -444,16 +445,16 @@ function populateData(result) {
           } onClick="electedChecked(this)">
                             <span class="vote_message"></span>
                         </div>
-                        <div class="col-md-3 form-group">
+                        <div class="col-md-description form-group">
                             <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${
                               obj.descriptions ? obj.descriptions : ""
                             }</textarea>
                         </div>
-                        <div class="col-md-1 form-group">
+                        <!--<div class="col-md-1 form-group">
                             <div class="actionBtnGroup col-sm-12">
                             <i id="removeFormBtn" class="fas fa-trash"></i>
                             <i id ="addFormBtn" class="fas fa-plus "></i>   
-                            </div>
+                            </div>-->
                         </div>
                         </div>`;
         } else {
@@ -470,7 +471,7 @@ function populateData(result) {
                                 }" class="form-control" required name="name_np[]" placeholder="Enter candidate name in nepali">
                                 <span class="name_np_message"></span>
                             </div>
-                            <div class="col-md-3 form-group">
+                            <div class="col-md-party form-group">
                               <select value="${
                                 obj.party_code
                               }" class="form-control party" required name="party[]" id="party-${i}" onChange="updateCheckData(this)">${partyOptions}</select>
@@ -492,16 +493,16 @@ function populateData(result) {
           } onClick="electedChecked(this)">
                                 <span class="vote_message"></span>
                             </div>
-                            <div class="col-md-3 form-group">
+                            <div class="col-md-description form-group">
                                 <textarea type="text" class="form-control" name="descriptions[]" rows="3" cols="33">${
                                   obj.descriptions ? obj.descriptions : ""
                                 }</textarea>
                             </div>
-                            <div class="col-md-1 form-group">
+                            <!--<div class="col-md-1 form-group">
                               <div class="actionBtnGroup col-sm-12">
                                 <i id="removeFormBtn" class="fas fa-trash"></i>
                                 <i id="editFormBtn" class="fas fa-pencil "></i>
-                              </div>
+                              </div>-->
                             </div>
                           </div>`;
         }

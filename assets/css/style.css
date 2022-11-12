@@ -171,6 +171,11 @@
   color: black;
 }
 
+.col-md-party {
+  flex: 0 0 auto;
+  width: 20%;
+}
+
 .col-md-check {
   flex: 0 0 auto;
   width: 5.33333333%;
@@ -179,6 +184,11 @@
 .col-md-vote {
   flex: 0 0 auto;
   width: 10.6666666%;
+}
+
+.col-md-description {
+  flex: 0 0 auto;
+  width: 30%;
 }
 
 .table-label {

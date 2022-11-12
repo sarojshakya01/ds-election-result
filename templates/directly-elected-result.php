@@ -66,11 +66,11 @@
         <div class="row table-heading">
           <div class="col-md-2">Name</div>
           <div class="col-md-2">Name(Nepali)</div>
-          <div class="col-md-3">Party</div>
+          <div class="col-md-party">Party</div>
           <div class="col-md-vote">Vote</div>
           <div class="col-md-check">Elected</div>
-          <div class="col-md-3">Description</div>
-          <div class="col-md-1">Action</div>
+          <div class="col-md-description">Description</div>
+          <!-- <div class="col-md-1">Action</div> -->
         </div>
         <div class="my-3" id="result-form">
         </div>

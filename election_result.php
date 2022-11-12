@@ -132,9 +132,9 @@ function ajax_handler_update_result() {
                     $values .= rtrim($temp_values, ',') . "),\n";
                 }
             }
-            $sql_query_delete = "DELETE FROM ds_election_candidates where rtype = '$type' and province_id = $province and district_id = '$district' and region_id = $region";
+            // $sql_query_delete = "DELETE FROM ds_election_candidates where rtype = '$type' and province_id = $province and district_id = '$district' and region_id = $region";
 
-            $query_result = $wpdb->query($sql_query_delete);
+            // $query_result = $wpdb->query($sql_query_delete);
 
             $sql_query = "INSERT INTO ds_election_candidates 
             (rtype, province_id, district_id, region_id, name_np, name_en, party_code, vote, elected, descriptions) 
