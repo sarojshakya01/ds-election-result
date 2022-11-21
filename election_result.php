@@ -47,11 +47,11 @@ function election_result_menu_proportional_result() {
 
 
 function election_result_menu() {
-    add_menu_page("directly-elected-result", "Election Result 2079", "manage_options", "directly-elected-result", "election_result_menu_result", '', 9);
+    add_menu_page("directly-elected-result", "Election Result 2079", "edit_pages", "directly-elected-result", "election_result_menu_result", '', 9);
 
-    add_submenu_page("directly-elected-result", "Directly Elected Result", "Directly Elected Result", "manage_options", "directly-elected-result", "election_result_menu_result");
+    add_submenu_page("directly-elected-result", "Directly Elected Result", "Directly Elected Result", "edit_pages", "directly-elected-result", "election_result_menu_result");
 
-    add_submenu_page("directly-elected-result", "Proportional Result", "Proportional Result", "manage_options", "proportional-result", "election_result_menu_proportional_result");
+    add_submenu_page("directly-elected-result", "Proportional Result", "Proportional Result", "edit_pages", "proportional-result", "election_result_menu_proportional_result");
 }
 
 add_action("admin_menu", "election_result_menu");
