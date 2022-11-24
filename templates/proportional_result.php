@@ -32,10 +32,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="row table-heading">
-                    <div class="col-md-2">S.N.</div>
-                    <div class="col-md-6">Party</div>
-                    <div class="col-md-4">Vote</div>
+                <div class="row sh-table-heading">
+                    <div class="col-md-1">S.N.</div>
+                    <div class="col-md-3">Party</div>
+                    <div class="col-md-1">Vote - All</div>
+                    <div class="col-md-1">Vote - Province 1</div>
+                    <div class="col-md-1">Vote - Madhesh Pradesh</div>
+                    <div class="col-md-1">Vote - Bagmati Pradesh</div>
+                    <div class="col-md-1">Vote - Gandaki Pradesh</div>
+                    <div class="col-md-1">Vote - Lumbini Pradesh</div>
+                    <div class="col-md-1">Vote - Karnali Pradesh</div>
+                    <div class="col-md-1">Vote - SuPa Pradesh</div>
                 </div>
                 <div class="my-3" id="pr-form">
                 </div>

@@ -149,7 +149,7 @@ function ajax_handler_update_result() {
             $query_result = $wpdb->query($sql_query);
             
             if ($query_result) {
-                $updated_data = $wpdb->get_results("SELECT * FROM ds_election_candidates WHERE province_id =  $province  AND district_id =  '$district'  AND
+                $updated_data = $wpdb->get_results("SELECT * FROM ds_election_candidates WHERE rtype = '$type' and province_id = $province AND district_id = '$district' AND
                 round(region_id, 1) = $region ;", OBJECT);
                 $responseData = [];
                 for ($i = 0; $i < count($updated_data); $i++) {
@@ -190,7 +190,14 @@ function ajax_handler_update_pr_result() {
     global $wpdb;
 
     $party = isset($_REQUEST['party']) ? $_REQUEST['party'] : null;
-    $vote = isset($_REQUEST['vote']) ? $_REQUEST['vote'] : null;
+    $vote = isset($_REQUEST['vote']) ? $_REQUEST['vote'] : 0;
+    $vote_p1 = isset($_REQUEST['vote_p1']) ? $_REQUEST['vote_p1'] : 0;
+    $vote_p2 = isset($_REQUEST['vote_p2']) ? $_REQUEST['vote_p2'] : 0;
+    $vote_p3 = isset($_REQUEST['vote_p3']) ? $_REQUEST['vote_p3'] : 0;
+    $vote_p4 = isset($_REQUEST['vote_p4']) ? $_REQUEST['vote_p4'] : 0;
+    $vote_p5 = isset($_REQUEST['vote_p5']) ? $_REQUEST['vote_p5'] : 0;
+    $vote_p6 = isset($_REQUEST['vote_p6']) ? $_REQUEST['vote_p6'] : 0;
+    $vote_p7 = isset($_REQUEST['vote_p7']) ? $_REQUEST['vote_p7'] : 0;
 
     if ($_REQUEST['dbaction'] == 'update') {
 
@@ -200,22 +207,30 @@ function ajax_handler_update_pr_result() {
             $values = "";
             $responseData = [];
             for ($i = 0; $i < count($party); $i++) {
-                $values .= "('" . $party[$i] . "'," . $vote[$i] . ")";
+                $values .= "('" . $party[$i] . "'," . $vote[$i] . "," . $vote_p1[$i] . "," . $vote_p2[$i] . "," . $vote_p3[$i] . "," . $vote_p4[$i] . "," . $vote_p5[$i] . "," . $vote_p6[$i] . "," . $vote_p7[$i] . ")";
                 if ($i !== count($party) - 1) {
                     $values .= ",\n";
                 }
-                array_push($responseData, array("party" => $party[$i], "vote" => $vote[$i]));
+                array_push($responseData, array("party" => $party[$i], "vote" => $vote[$i], "vote_p1" => $vote_p1[$i], "vote_p2" => $vote_p2[$i], "vote_p3" => $vote_p3[$i], "vote_p4" => $vote_p4[$i], "vote_p5" => $vote_p5[$i], "vote_p6" => $vote_p6[$i], "vote_p7" => $vote_p7[$i]));
             }
             $sql_query = "INSERT INTO ds_election_pr_results 
-            (party_code, vote) 
+            (party_code, vote, vote_p1, vote_p2, vote_p3, vote_p4, vote_p5, vote_p6, vote_p7) 
             VALUES $values
             ON DUPLICATE KEY UPDATE
-            vote = VALUES(vote)";
+            vote = VALUES(vote),
+            vote_p1 = VALUES(vote_p1),
+            vote_p2 = VALUES(vote_p2),
+            vote_p3 = VALUES(vote_p3),
+            vote_p4 = VALUES(vote_p4),
+            vote_p5 = VALUES(vote_p5),
+            vote_p6 = VALUES(vote_p6),
+            vote_p7 = VALUES(vote_p7)";
+            
 
             $query_result = $wpdb->query($sql_query);
             
             if ($query_result) {
-                $updated_data = $wpdb->get_results("SELECT party_code as party, vote FROM ds_election_pr_results WHERE 1;", OBJECT);
+                $updated_data = $wpdb->get_results("SELECT party_code as party, vote, vote_p1, vote_p2, vote_p3, vote_p4, vote_p5, vote_p6, vote_p7 FROM ds_election_pr_results WHERE 1;", OBJECT);
                 
                 $responseData = [];
                 for ($i = 0; $i < count($updated_data); $i++) {

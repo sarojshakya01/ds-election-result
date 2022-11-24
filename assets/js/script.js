@@ -573,23 +573,58 @@ function populateProportionalData(data) {
     sortedData.forEach((p, i) => {
       const partyDetails = parties.data.find((pd) => pd.code === p.party);
       rows += `<div class="row my-3 party-row">
-              <div class="col-md-2 form-group">
-                <label>${i + 1}</label>
-              </div>
-              <div class="col-md-6 form-group">
-                <input type="hidden" value="${
-                  p.party
-                }" class="form-control" name="party[]">
-                <label class="table-label">${
-                  partyDetails ? partyDetails.name_np : p.party
-                }</label>
-              </div>
-              <div class="col-md-4 form-group">
-                <input type="number" value="${
-                  p.vote
-                }" class="form-control" name="vote[]">
-              </div>
-            </div>`;
+                <div class="col-md-1 form-group">
+                  <label>${i + 1}</label>
+                </div>
+                <div class="col-md-3 form-group">
+                  <input type="hidden" value="${
+                    p.party
+                  }" class="form-control" name="party[]">
+                  <label class="table-label">${
+                    partyDetails ? partyDetails.name_np : p.party
+                  }</label>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote
+                  }" class="form-control" name="vote[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p1
+                  }" class="form-control" name="vote_p1[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p2
+                  }" class="form-control" name="vote_p2[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p3
+                  }" class="form-control" name="vote_p3[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p4
+                  }" class="form-control" name="vote_p4[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p5
+                  }" class="form-control" name="vote_p5[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p6
+                  }" class="form-control" name="vote_p6[]" required>
+                </div>
+                <div class="col-md-1 form-group">
+                  <input type="number" min="0" oninput="validity.valid||(value='');" value="${
+                    p.vote_p7
+                  }" class="form-control" name="vote_p7[]" required>
+                </div>
+              </div>`;
     });
 
     jQuery("#pr-form").html(rows);
