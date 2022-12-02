@@ -1,5 +1,5 @@
-// const API_BASE_URL = "https://electionapi.deshsanchar.com/";
-const API_BASE_URL = "http://localhost:3334/";
+const API_BASE_URL = "https://electionapi.deshsanchar.com/";
+// const API_BASE_URL = "http://localhost:3334/";
 
 function updateCheckData(e) {
   e.parentElement.parentElement
