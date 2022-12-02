@@ -381,13 +381,13 @@ var allRegions = {
             ],
           },
           {
-            id: "dolkha",
-            name_en: "Dolkha",
+            id: "dolakha",
+            name_en: "Dolakha",
             name_np: "दोलखा",
             regions: [
-              { id: 1, rtype: "federal", district_id: "dolkha", province_id: 3, name_np: "१", name_en: 1 },
-              { id: 1.1, rtype: "provincial", district_id: "dolkha", province_id: 3, name_np: "१(क)", name_en: 1.1 },
-              { id: 1.2, rtype: "provincial", district_id: "dolkha", province_id: 3, name_np: "१(ख)", name_en: 1.2 },
+              { id: 1, rtype: "federal", district_id: "dolakha", province_id: 3, name_np: "१", name_en: 1 },
+              { id: 1.1, rtype: "provincial", district_id: "dolakha", province_id: 3, name_np: "१(क)", name_en: 1.1 },
+              { id: 1.2, rtype: "provincial", district_id: "dolakha", province_id: 3, name_np: "१(ख)", name_en: 1.2 },
             ],
           },
           {
